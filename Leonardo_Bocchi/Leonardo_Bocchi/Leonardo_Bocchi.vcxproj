@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Object\Stage\Block.cpp" />
     <ClCompile Include="Object\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="Object\Character\CharaBase.cpp" />
     <ClCompile Include="Object\Character\Player\Player.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="Utility\Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Object\Stage\Block.h" />
     <ClInclude Include="Object\Character\Enemy\Enemy.h" />
     <ClInclude Include="Object\Character\CharaBase.h" />
     <ClInclude Include="common.h" />
@@ -164,6 +166,7 @@
     <ClInclude Include="Utility\ResourceManager.h" />
     <ClInclude Include="Utility\Fps.h" />
     <ClInclude Include="Utility\InputControl.h" />
+    <ClInclude Include="Utility\UserTemplate.h" />
     <ClInclude Include="Utility\UtilityList.h" />
     <ClInclude Include="Utility\Vector2D.h" />
   </ItemGroup>

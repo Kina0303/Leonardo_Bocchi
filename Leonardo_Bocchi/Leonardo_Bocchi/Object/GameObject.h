@@ -13,6 +13,8 @@ class GameObject
 protected:
 	Vector2D location;	//オブジェクトの位置
 	Vector2D box_size;	//オブジェクトのサイズ
+	Vector2D hit_box;	//当たり判定のサイズ
+
 	Vector2D velocity = { 0.0f };
 	int image;			//描画する画像データ
 	int flip_flg;		//描画する反転フラグ

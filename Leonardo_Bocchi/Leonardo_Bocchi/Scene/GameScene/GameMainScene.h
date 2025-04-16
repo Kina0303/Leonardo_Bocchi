@@ -1,11 +1,16 @@
 #pragma once
 #include "../SceneBase.h"
 #include "../../common.h"
+#include "../../Object/Character/Player/Player.h"
 
 class GameMainScene :
     public SceneBase
 {
 private:
+	int stage_width_num;    //ステージの横のブロック数
+	int stage_height_num;   //ステージの縦のブロック数
+
+	int stage_data[STAGE_MAX_HEIGHT][STAGE_MAX_WIDTH];
 public:
 	GameMainScene();
 	~GameMainScene();
@@ -16,5 +21,14 @@ public:
 	void Finalize() override;		//終了時処理
 
 	eSceneType GetNowSceneType()const override;
+
+	//ステージデータを読み込む
+	void LoadStage();
+
+	//ステージデータを生成
+	void SetStage();
+
+	//カメラの位置を更新
+	void UpdateCamera();
 };
 
