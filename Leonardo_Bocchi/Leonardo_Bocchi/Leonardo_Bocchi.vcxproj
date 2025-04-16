@@ -139,10 +139,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Object\Character\Enemy\Enemy.cpp" />
+    <ClCompile Include="Object\Character\CharaBase.cpp" />
+    <ClCompile Include="Object\Character\Player\Player.cpp" />
+    <ClCompile Include="Scene\GameScene\GameMainScene.cpp" />
+    <ClCompile Include="Object\GameObject.cpp" />
+    <ClCompile Include="Scene\SceneManager.cpp" />
+    <ClCompile Include="Scene\SceneBase.cpp" />
+    <ClCompile Include="Utility\ResourceManager.cpp" />
+    <ClCompile Include="Utility\Fps.cpp" />
+    <ClCompile Include="Utility\InputControl.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utility\Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Object\Character\Enemy\Enemy.h" />
+    <ClInclude Include="Object\Character\CharaBase.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="Object\Character\Player\Player.h" />
+    <ClInclude Include="Scene\GameScene\GameMainScene.h" />
+    <ClInclude Include="Object\GameObject.h" />
+    <ClInclude Include="Scene\SceneManager.h" />
+    <ClInclude Include="Scene\SceneBase.h" />
+    <ClInclude Include="Utility\ResourceManager.h" />
+    <ClInclude Include="Utility\Fps.h" />
+    <ClInclude Include="Utility\InputControl.h" />
+    <ClInclude Include="Utility\UtilityList.h" />
+    <ClInclude Include="Utility\Vector2D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
