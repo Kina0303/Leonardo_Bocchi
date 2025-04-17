@@ -81,7 +81,7 @@ void Player::Movement()
 		break;
 		//左矢印キーを押したら
 	case PlayerState::eLEFT:
-		velocity.x -= 5;
+		velocity.x -= 1.5;
 		flip_flg = TRUE;      // 左向きフラグをセット
 
 		//左キーが離されたら
@@ -97,7 +97,7 @@ void Player::Movement()
 		break;
 		//右矢印キーを押したら
 	case PlayerState::eRIGHT:
-		velocity.x += 0.5;
+		velocity.x += 1.5;
 		flip_flg = FALSE;      // 右向きフラグをセット
 
 		//左キーが離されたら

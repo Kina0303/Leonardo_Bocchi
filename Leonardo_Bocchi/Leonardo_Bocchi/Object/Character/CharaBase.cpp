@@ -31,7 +31,6 @@ void CharaBase::Finalize()
 
 void CharaBase::OnHitCollision(GameObject* hit_object)
 {
-
 	//当たったオブジェクトがブロックだった場合の処理
 	if (hit_object->GetObjectType() == BLOCK)
 	{
@@ -41,7 +40,6 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 
 		Vector2D target_location = hit_object->GetLocation();
 		Vector2D target_size = target_location + hit_object->GetBoxSize();
-
 
 		//AABB衝突判定
 		if (obj_size.x > target_location.x && obj_location.x < target_size.x &&
@@ -57,6 +55,13 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 			//衝突の深さ（めり込み量）を計算
 			if (depth_x < depth_y)
 			{
+				// 空中でも横方向の衝突は行う（ただし、ジャンプ中の押し戻しだけを行わない）
+				if (jump_flag == true)
+				{
+					// 横方向の押し戻しは行うが、ジャンプ中にめり込まないように位置調整
+					push.x = (obj_location.x < target_location.x) ? -depth_x * 0.5f : depth_x * 0.5f;
+				}
+
 				// 横方向の衝突処理
 				if (obj_location.x < target_location.x)
 				{
@@ -73,19 +78,27 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 				//縦方向の衝突処理
 				if (obj_location.y < target_location.y)
 				{
-					push.y = -depth_y; //上から衝突
-					jump_flag = false;	  //ジャンプフラグをfalseにする
+					push.y = -depth_y; // 上から衝突
+
+					// 落下中のみジャンプフラグをリセット
+					if (velocity.y >= 0.0f) {
+						jump_flag = false;
+					}
 				}
 				else
 				{
-					push.y = depth_y;	//下から衝突
+					push.y = depth_y;	// 下から衝突
 				}
-				velocity.y = 0.0f;
-				g_velocity = 0.0f;
+
+				// もし落下中であれば速度をゼロに
+				if (velocity.y >= 0.0f) {
+					velocity.y = 0.0f;
+					g_velocity = 0.0f;
+				}
 			}
+
 			// 位置を修正
 			location += push;
 		}
-
 	}
 }
