@@ -11,6 +11,8 @@ private:
 	int stage_height_num;   //ステージの縦のブロック数
 
 	int stage_data[STAGE_MAX_HEIGHT][STAGE_MAX_WIDTH];
+
+	GameObject* player;	//プレイヤーのポインタ
 public:
 	GameMainScene();
 	~GameMainScene();
@@ -30,5 +32,10 @@ public:
 
 	//カメラの位置を更新
 	void UpdateCamera();
+
+	//ステージリロード
+	void ReLoadStage();
+
+	void FindPlayer();
 };
 

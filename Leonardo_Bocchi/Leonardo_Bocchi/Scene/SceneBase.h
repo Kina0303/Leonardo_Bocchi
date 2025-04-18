@@ -15,6 +15,9 @@ protected:
 	std::vector<GameObject*>objects;
 	Vector2D camera_location;
 
+	int clear_count = 0;	//クリアカウント
+	bool stage_reload = false;
+
 public:
 	//コンストラクタ
 	SceneBase();
@@ -57,6 +60,10 @@ protected:
 
 public:
 	void DeleteObject(GameObject* obj);
+
+public:
+	bool IsStageReload() const { return stage_reload; }
+	void SetStageReload(bool flg) { stage_reload = flg; }
 };
 
 

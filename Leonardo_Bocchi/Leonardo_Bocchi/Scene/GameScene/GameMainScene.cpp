@@ -1,14 +1,13 @@
 #include "GameMainScene.h"
 #include "DxLib.h"
-#include "../../Object/Character/Player/Player.h"
-#include "../../Object/Stage/Block.h"
+#include "../../Object/ObjectList.h"
 
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 
-GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }
+GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr)
 {
 }
 
@@ -19,12 +18,22 @@ GameMainScene::~GameMainScene()
 void GameMainScene::Initialize()
 {
 	LoadStage();
+	camera_location = Vector2D(0.0f, 0.0f); //カメラの初期位置を設定
 }
 
 eSceneType GameMainScene::Update()
 {
-	UpdateCamera();
+	//ステージリロード	
+	if (IsStageReload())
+	{
+		ReLoadStage();
+	}
 
+	//プレイヤーの取得
+	FindPlayer();
+
+	//カメラ更新
+	UpdateCamera();
 	return __super::Update();
 }
 
@@ -32,9 +41,12 @@ void GameMainScene::Draw() const
 {
 	//背景
 	DrawBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GetColor(150, 150, 150), TRUE); // 背景を黒で塗りつぶす
-	__super::Draw();
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "メイン画面");
 	DrawFormatString(10, 40, GetColor(255, 255, 255), "ステージサイズ：幅 = %d      高さ = %d\n", stage_width_num, stage_height_num);
+
+	DrawFormatString(10, 70, GetColor(255, 255, 255), "LOOP : %d\n", clear_count);
+
+	__super::Draw();
 
 }
 
@@ -103,13 +115,16 @@ void GameMainScene::SetStage()
 			int y = 720 - ((stage_height_num - 1 - i) * BOX_SIZE);
 			switch (stage_data[i][j])
 			{
-			case 0:
+			case EMPTY:
 				break;
 			case BLOCK:
 				CreateObject<Block>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
 			case PLAYER:
 				CreateObject<Player>(Vector2D(j * BOX_SIZE, y), Vector2D(64.0f,96.0f));
+				break;
+			case GOAL:
+				CreateObject<GoalPoint>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
 			default:
 				break;
@@ -120,17 +135,6 @@ void GameMainScene::SetStage()
 
 void GameMainScene::UpdateCamera()
 {
-	//プレイヤーの取得
-	GameObject* player = nullptr;
-	for (auto obj : objects)
-	{
-		if (obj->GetObjectType() == PLAYER)
-		{
-			player = obj;
-			break;
-		}
-	}
-
 	//プレイヤーが存在するならカメラを追従させる
 	if (player)
 	{
@@ -144,5 +148,30 @@ void GameMainScene::UpdateCamera()
 		//画面端ではスクロールしないよう制限
 		if (camera_location.x < stage_limit_left) camera_location.x = stage_limit_left;
 		if (camera_location.x > stage_limit_right) camera_location.x = stage_limit_right;
+	}
+}
+
+void GameMainScene::ReLoadStage()
+{
+	//オブジェクトの削除
+	for (auto obj : objects)
+	{
+		delete obj;
+	}
+	objects.clear();
+	stage_reload = false;
+	LoadStage();
+}
+
+void GameMainScene::FindPlayer()
+{
+	//プレイヤーの取得
+	for (auto obj : objects)
+	{
+		if (obj->GetObjectType() == PLAYER)
+		{
+			player = obj;
+			break;
+		}
 	}
 }

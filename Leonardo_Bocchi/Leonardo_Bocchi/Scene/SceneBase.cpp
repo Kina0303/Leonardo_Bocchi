@@ -32,7 +32,16 @@ eSceneType SceneBase::Update()
 			{
 				objects[i]->OnHitCollision(objects[j]);
 				objects[j]->OnHitCollision(objects[i]);
+
+				//ゴールに到達した場合
+				if (objects[i]->GetObjectType() == PLAYER && objects[j]->GetObjectType() == GOAL)
+				{
+					clear_count++;
+					//ステージ再生成		
+					SetStageReload(true);
+				}
 			}
+
 		}
 	}
 

@@ -1,12 +1,8 @@
 #pragma once
 #pragma once
 #include "../Utility/Vector2D.h"
-enum eObjectType
-{
-	BLOCK = 1,
-	PLAYER,
-	ENEMY,
-};
+#include "ObjectTypeList.h"
+
 
 class GameObject
 {
