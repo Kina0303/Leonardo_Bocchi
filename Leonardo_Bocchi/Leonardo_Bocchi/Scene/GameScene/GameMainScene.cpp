@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iostream>
 
+#define ENEMY_POS Vector2D(144.0f, 288.0f) //エネミーの初期位置
+
 
 GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr)
 {
@@ -34,6 +36,12 @@ eSceneType GameMainScene::Update()
 
 	//カメラ更新
 	UpdateCamera();
+
+	//エネミー生成
+	if (clear_count >= 1)
+	{
+
+	}
 	return __super::Update();
 }
 
@@ -108,6 +116,7 @@ void GameMainScene::LoadStage()
 
 void GameMainScene::SetStage()
 {
+
 	//ステージデータを元にオブジェクトを生成
 	for (int i = 0; i < stage_height_num; i++) {
 		for (int j = 0; j < stage_width_num; j++) {
@@ -123,6 +132,9 @@ void GameMainScene::SetStage()
 			case PLAYER:
 				CreateObject<Player>(Vector2D(j * BOX_SIZE, y), Vector2D(64.0f,96.0f));
 				break;
+			//case ENEMY:
+				//CreateObject<Enemy>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
+				//break;
 			case GOAL:
 				CreateObject<GoalPoint>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
@@ -131,6 +143,8 @@ void GameMainScene::SetStage()
 			}
 		}
 	}
+
+
 }
 
 void GameMainScene::UpdateCamera()
@@ -161,6 +175,16 @@ void GameMainScene::ReLoadStage()
 	objects.clear();
 	stage_reload = false;
 	LoadStage();
+
+	// プレイヤーが見つかったらエネミー生成
+	if (player)
+	{
+		for (int i = 0; i < clear_count; ++i)
+		{
+			CreateObject<Enemy>(ENEMY_POS, Vector2D((float)BOX_SIZE));
+		}
+	}
+
 }
 
 void GameMainScene::FindPlayer()
