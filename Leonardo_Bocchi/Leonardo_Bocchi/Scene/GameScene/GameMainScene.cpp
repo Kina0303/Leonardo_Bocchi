@@ -118,32 +118,36 @@ void GameMainScene::LoadStage()
 void GameMainScene::SetStage()
 {
 
-	//ステージデータを元にオブジェクトを生成
+	// ステージデータに基づいてオブジェクトを生成
 	for (int i = 0; i < stage_height_num; i++) {
 		for (int j = 0; j < stage_width_num; j++) {
-			//ブロックのY座標を計算	
+			// ブロックのY座標を計算	
 			int y = 720 - ((stage_height_num - 1 - i) * BOX_SIZE);
+
 			switch (stage_data[i][j])
 			{
 			case EMPTY:
-				break;
+				break;  // 空の場合は何もしない
 			case BLOCK:
+				// ブロックを生成
 				CreateObject<Block>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
 			case PLAYER:
-				CreateObject<Player>(Vector2D(j * BOX_SIZE, y), Vector2D(64.0f,96.0f));
+				// プレイヤーを生成
+				CreateObject<Player>(Vector2D(j * BOX_SIZE, y), Vector2D(64.0f, 96.0f));
 				break;
-			//case ENEMY:
-				//CreateObject<Enemy>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
-				//break;
+				// case ENEMY:
+					// ここでエネミーを生成することも可能（コメントアウトされています）
 			case GOAL:
+				// ゴールポイントを生成
 				CreateObject<GoalPoint>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
 			default:
-				break;
+				break;  // それ以外は何もしない
 			}
 		}
 	}
+
 
 	//クローン（過去のプレイヤー）を生成
 	CreateClone();
