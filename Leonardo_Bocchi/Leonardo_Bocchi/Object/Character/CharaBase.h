@@ -2,6 +2,12 @@
 #include "../GameObject.h"
 #include "../../Utility/UserTemplate.h"
 
+
+struct MoveRecord {
+	Vector2D position;
+	bool is_jumping;
+};
+
 class CharaBase :
     public GameObject
 {

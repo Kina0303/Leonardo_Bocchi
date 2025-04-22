@@ -23,13 +23,20 @@ void Enemy::Initialize(Vector2D _location, Vector2D _box_size)
 
 void Enemy::Update()
 {
-
-
 	__super::Update();
 	//移動処理
 	//Movement();
 	//アニメーション管理
 	//AnimationControl();
+
+	if (current_frame < replay_history.size())
+	{
+		const auto& record = replay_history[current_frame];
+		SetLocation(record.position);
+
+		++current_frame;
+	}
+
 }
 
 void Enemy::Draw(Vector2D offset, double rate) const
@@ -54,6 +61,13 @@ void Enemy::AnimationControl()
 void Enemy::OnHitCollision(GameObject* hit_object)
 {
 	__super::OnHitCollision(hit_object);
+}
+
+void Enemy::SetReplayHistory(const std::vector<MoveRecord>& history)
+{
+	replay_history = history;
+	current_frame = 0;
+	//replay_history.clear();
 }
 
 

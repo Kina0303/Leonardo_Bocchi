@@ -1,10 +1,14 @@
 #pragma once
 #include "../CharaBase.h"
+#include <vector>
 
 class Enemy :
     public CharaBase
 {
 private:
+	//エネミーの状態
+    std::vector<MoveRecord> replay_history;
+    int current_frame = 0;
 
 public:
     Enemy();
@@ -27,5 +31,9 @@ public:
     void AnimationControl();
     //当たった時の挙動
     void OnHitCollision(GameObject* hit_object)override;
+
+	
+	//移動履歴をセット
+    void SetReplayHistory(const std::vector<MoveRecord>& history);
 };
 

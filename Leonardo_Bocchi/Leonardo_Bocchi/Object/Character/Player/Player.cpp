@@ -33,6 +33,8 @@ void Player::Update()
 	Movement();
 
 
+	SaveMoveHistory();
+
 	//アニメーション管理
 	//AnimationControl();
 }
@@ -163,4 +165,13 @@ void Player::AnimationControl()
 void Player::OnHitCollision(GameObject* hit_object)
 {
 	__super::OnHitCollision(hit_object);
+}
+
+void Player::SaveMoveHistory()
+{
+	MoveRecord record;
+	record.position = this->location;
+	record.is_jumping = this->jump_flag;
+
+	move_history.push_back(record);
 }

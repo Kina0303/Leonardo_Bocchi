@@ -2,6 +2,9 @@
 #include "../SceneBase.h"
 #include "../../common.h"
 #include "../../Object/Character/Player/Player.h"
+#include "../../Object/Character/CharaBase.h"
+
+
 
 class GameMainScene :
     public SceneBase
@@ -13,6 +16,9 @@ private:
 	int stage_data[STAGE_MAX_HEIGHT][STAGE_MAX_WIDTH];
 
 	GameObject* player;	//プレイヤーのポインタ
+
+	std::vector<std::vector<MoveRecord>>stage_clear_history; //ステージクリア履歴
+
 public:
 	GameMainScene();
 	~GameMainScene();
@@ -33,9 +39,16 @@ public:
 	//カメラの位置を更新
 	void UpdateCamera();
 
+	//ステージクリア処理
+	void StageClear();
+
 	//ステージリロード
 	void ReLoadStage();
 
+	//プレイヤーを探す
 	void FindPlayer();
+
+	//エネミーを生成
+	void CreateClone();
 };
 

@@ -6,7 +6,6 @@
 #include <sstream>
 #include <iostream>
 
-#define ENEMY_POS Vector2D(144.0f, 288.0f) //エネミーの初期位置
 
 
 GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr)
@@ -19,7 +18,10 @@ GameMainScene::~GameMainScene()
 
 void GameMainScene::Initialize()
 {
+	//ステージを読み込む
 	LoadStage();
+
+	//カメラの初期位置を設定
 	camera_location = Vector2D(0.0f, 0.0f); //カメラの初期位置を設定
 }
 
@@ -28,6 +30,10 @@ eSceneType GameMainScene::Update()
 	//ステージリロード	
 	if (IsStageReload())
 	{
+		//ステージクリア時の処理
+		StageClear();
+
+		//ステージの再読み込み
 		ReLoadStage();
 	}
 
@@ -37,11 +43,6 @@ eSceneType GameMainScene::Update()
 	//カメラ更新
 	UpdateCamera();
 
-	//エネミー生成
-	if (clear_count >= 1)
-	{
-
-	}
 	return __super::Update();
 }
 
@@ -144,6 +145,8 @@ void GameMainScene::SetStage()
 		}
 	}
 
+	//クローン（過去のプレイヤー）を生成
+	CreateClone();
 
 }
 
@@ -165,31 +168,35 @@ void GameMainScene::UpdateCamera()
 	}
 }
 
+void GameMainScene::StageClear()
+{
+	//プレイヤーを取得
+	Player* p = dynamic_cast<Player*>(player);
+
+	if (p){
+		// プレイヤーの移動履歴を保存
+		stage_clear_history.push_back(p->GetMoveHistory());
+	}
+}
+
 void GameMainScene::ReLoadStage()
 {
 	//オブジェクトの削除
 	for (auto obj : objects)
 	{
 		delete obj;
+		obj = nullptr;
 	}
 	objects.clear();
 	stage_reload = false;
 	LoadStage();
 
-	// プレイヤーが見つかったらエネミー生成
-	if (player)
-	{
-		for (int i = 0; i < clear_count; ++i)
-		{
-			CreateObject<Enemy>(ENEMY_POS, Vector2D((float)BOX_SIZE));
-		}
-	}
-
+	//CreateClone();
 }
 
 void GameMainScene::FindPlayer()
 {
-	//プレイヤーの取得
+	//プレイヤーオブジェクトを探して取得
 	for (auto obj : objects)
 	{
 		if (obj->GetObjectType() == PLAYER)
@@ -199,3 +206,17 @@ void GameMainScene::FindPlayer()
 		}
 	}
 }
+
+void GameMainScene::CreateClone()
+{
+	//ステージクリア時のプレイヤーの履歴を基にエネミーを生成
+	for (const auto& history : stage_clear_history)
+	{
+		//新しいエネミー（過去のプレイヤー）を生成
+		Enemy* enemy = CreateObject<Enemy>(Vector2D(0.0f, 0.0f) , Vector2D(64.0f, 96.0f));
+
+		// 履歴をエネミーにセット
+		enemy->SetReplayHistory(history);
+	}
+}
+
