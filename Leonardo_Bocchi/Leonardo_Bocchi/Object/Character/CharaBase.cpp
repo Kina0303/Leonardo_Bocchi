@@ -56,7 +56,7 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 			if (depth_x < depth_y)
 			{
 				// 空中でも横方向の衝突は行う（ただし、ジャンプ中の押し戻しだけを行わない）
-				if (jump_flag == true)
+				if (is_jump == true)
 				{
 					// 横方向の押し戻しは行うが、ジャンプ中にめり込まないように位置調整
 					push.x = (obj_location.x < target_location.x) ? -depth_x * 0.5f : depth_x * 0.5f;
@@ -82,7 +82,7 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 
 					// 落下中のみジャンプフラグをリセット
 					if (velocity.y >= 0.0f) {
-						jump_flag = false;
+						is_jump = false;
 					}
 				}
 				else

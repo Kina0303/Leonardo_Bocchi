@@ -8,4 +8,4 @@
 #define STAGE_MAX_WIDTH 1000
 #define STAGE_MAX_HEIGHT 1000
 
-#define BOX_SIZE 48 //ブロックのサイズ
+#define BOX_SIZE 48.0f //ブロックのサイズ

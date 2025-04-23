@@ -15,7 +15,9 @@ protected:
 	int hp = 0;
 	float g_velocity = 0.0f;       //重力加速度
 
-	bool jump_flag = false;        //ジャンプフラグ
+	bool is_jump = false;        //ジャンプフラグ
+	bool is_double_jump = false; //ダブルジャンプフラグ
+
 	bool damage_flg = false;	//ダメージを受けたかどうか
 
 	int animation_count = 0;    //アニメーションカウント
