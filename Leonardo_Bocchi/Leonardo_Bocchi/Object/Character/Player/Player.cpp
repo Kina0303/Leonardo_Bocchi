@@ -58,85 +58,124 @@ void Player::Movement()
 	{
 		//何も動いていない状態（待機）
 	case PlayerState::eIDLE:
-
-		// 待機状態（キーが押されていないときの減速処理）
-		if (velocity.x < -1e-6f) // 左向きの速度を減らす
-		{
-			velocity.x = Min<float>(velocity.x + 0.2f, 0.0f); // 徐々に0に近づける
-		}
-		else if (velocity.x > 1e-6f) // 右向きの速度を減らす
-		{
-			velocity.x = Max<float>(velocity.x - 0.2f, 0.0f); // 徐々に0に近づける
-		}
-
-		//左右移動
-		if (input->GetButton(XINPUT_BUTTON_DPAD_LEFT))player_state = PlayerState::eLEFT;
-		else if (input->GetButton(XINPUT_BUTTON_DPAD_RIGHT))player_state = PlayerState::eRIGHT;
-
-		//ジャンプ
-		if (!is_jump) {
-			if (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE))
-			{
-				player_state = PlayerState::eJUMP;
-			}
-		}
+		// 待機状態の処理
+		IdleState(input);
 		break;
 		//左矢印キーを押したら
 	case PlayerState::eLEFT:
-		velocity.x -= 1.5;
-		flip_flg = TRUE;      // 左向きフラグをセット
-
-		//左キーが離されたら
-		if (!input->GetButton(XINPUT_BUTTON_DPAD_LEFT))player_state = PlayerState::eIDLE;
-
-		//ジャンプ
-		if (!is_jump) {
-			if (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE))
-			{
-				//is_jump = true;
-				//is_double_jump = true;
-				player_state = PlayerState::eJUMP;
-			}
-		}
+		LeftState(input);
 		break;
 		//右矢印キーを押したら
 	case PlayerState::eRIGHT:
-		velocity.x += 1.5;
-		flip_flg = FALSE;      // 右向きフラグをセット
-
-		//左キーが離されたら
-		if (!input->GetButton(XINPUT_BUTTON_DPAD_RIGHT))player_state = PlayerState::eIDLE;
-
-		//ジャンプ
-		if (!is_jump) {
-			if (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE))
-			{
-				player_state = PlayerState::eJUMP;
-			}
-		}
+		RightState(input);
 		break;
 		//ジャンプキー押したら
 	case PlayerState::eJUMP:      
-		velocity.y -= 6.0f;
-		is_jump = true;
-		//is_double_jump = false; // ダブルジャンプフラグをリセット
-		//ジャンプキーが離されたら
-		if (!input->GetButtonDown(XINPUT_BUTTON_A))player_state = PlayerState::eIDLE;
+		JumpState(input);
 		break;
 	case PlayerState::eDAMAGE:
-		break;
 	case PlayerState::eDEAD:
-		break;
 	default:
 		break;
 	}
 
-	//最大速度を制限
-	float max_speed = 7.5f;  // 最大速度
-	velocity.x = Min<float>(Max<float>(velocity.x, -max_speed), max_speed);
+	// 最大速度の制限
+	ConstrainVelocity();
 
 	//位置を更新
 	location += velocity;
+}
+
+void Player::IdleState(InputControl* input)
+{
+	// 待機状態（ボタンが押されていないときの減速処理）
+	ApplyDeceleration();
+
+	// 左右移動
+	if (input->GetButton(XINPUT_BUTTON_DPAD_LEFT) || input->GetKey(KEY_INPUT_A)) 
+	{
+		player_state = PlayerState::eLEFT;
+	}
+	else if (input->GetButton(XINPUT_BUTTON_DPAD_RIGHT) || input->GetKey(KEY_INPUT_D))
+	{
+		player_state = PlayerState::eRIGHT;
+	}
+
+	// ジャンプ
+	if (!is_jump && (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE))) 
+	{
+		player_state = PlayerState::eJUMP;
+	}
+}
+
+void Player::LeftState(InputControl* input)
+{
+	velocity.x -= 0.5;
+	flip_flg = TRUE;  // 左向きフラグ
+
+	// 左キーが離されたら待機状態
+	if (!input->GetButton(XINPUT_BUTTON_DPAD_LEFT) || input->GetKeyDown(KEY_INPUT_A)) {
+		player_state = PlayerState::eIDLE;
+	}
+
+	// ジャンプ
+	if (!is_jump && (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE)))
+	{
+		player_state = PlayerState::eJUMP;
+	}
+}
+
+void Player::RightState(InputControl* input)
+{
+	velocity.x += 0.5;
+	flip_flg = FALSE;  // 右向きフラグ
+
+	// 右キーが離されたら待機状態
+	if (!input->GetButton(XINPUT_BUTTON_DPAD_RIGHT) || input->GetKeyDown(KEY_INPUT_D)) {
+		player_state = PlayerState::eIDLE;
+	}
+
+	// ジャンプ
+	if (!is_jump && (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE)))
+	{
+		player_state = PlayerState::eJUMP;
+	}
+}
+
+void Player::JumpState(InputControl* input)
+{
+	velocity.y -= 6.0f;
+	is_jump = true;
+
+	// ジャンプキーが離されたら待機状態に戻す
+	if (!input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyUp(KEY_INPUT_SPACE)) {
+		player_state = PlayerState::eIDLE;
+	}
+}
+
+void Player::DamageState(InputControl* input)
+{
+}
+
+void Player::DeadState(InputControl* input)
+{
+}
+
+void Player::ApplyDeceleration()
+{
+	if (velocity.x < -1e-6f) {
+		velocity.x = Min<float>(velocity.x + 0.2f, 0.0f);
+	}
+	else if (velocity.x > 1e-6f) {
+		velocity.x = Max<float>(velocity.x - 0.2f, 0.0f);
+	}
+}
+
+void Player::ConstrainVelocity()
+{
+	// 最大速度の制限
+	const float max_speed = 7.5f;
+	velocity.x = Min<float>(Max<float>(velocity.x, -max_speed), max_speed);
 }
 
 
@@ -166,27 +205,8 @@ void Player::OnHitCollision(GameObject* hit_object)
 {
 	__super::OnHitCollision(hit_object);
 
-	if (hit_object->GetObjectType() == BLOCK)
-	{
-		// ブロックの位置とサイズを取得
-		Vector2D block_pos = hit_object->GetLocation();
-		Vector2D block_size = hit_object->GetBoxSize();
-
-		// プレイヤーの下端とブロックの上端を比較
-		float player_bottom = location.y + box_size.y;
-		float block_top = block_pos.y;
-
-		// 前フレームから下方向に移動している（落下中） && ブロックの上に乗った
-		if (velocity.y >= 0.0f && player_bottom <= block_top + 10.0f) // +10.0fは誤差の吸収用
-		{
-			// ブロックの上に乗ってると判断
-			location.y = block_top - box_size.y; // プレイヤーをブロックの上に配置
-			velocity.y = 0.0f;
-			is_jump = false;
-			is_double_jump = false;
-		}
-	}
 }
+
 
 void Player::SaveMoveHistory()
 {

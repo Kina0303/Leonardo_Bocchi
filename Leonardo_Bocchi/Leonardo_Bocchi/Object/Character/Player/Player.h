@@ -1,6 +1,7 @@
 #pragma once
 #include "../CharaBase.h"
 #include <vector>
+#include "../../../Utility/InputControl.h"
 
 enum class PlayerState
 {
@@ -37,6 +38,26 @@ public:
 public:
     //プレイヤーの動き
     void Movement();
+
+	//プレイヤーのアイドル状態
+    void IdleState(InputControl* input);
+	//プレイヤーの左移動
+	void LeftState(InputControl* input);
+	//プレイヤーの右移動
+	void RightState(InputControl* input);
+	//プレイヤーのジャンプ
+	void JumpState(InputControl* input);
+
+	//プレイヤーのダメージ
+	void DamageState(InputControl* input);
+	//プレイヤーの死亡
+	void DeadState(InputControl* input);
+
+
+    void ApplyDeceleration();
+    void ConstrainVelocity();
+    
+
     //アニメーション管理
     void AnimationControl();
     //当たった時の挙動

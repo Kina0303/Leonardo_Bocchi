@@ -31,74 +31,60 @@ void CharaBase::Finalize()
 
 void CharaBase::OnHitCollision(GameObject* hit_object)
 {
-	//当たったオブジェクトがブロックだった場合の処理
-	if (hit_object->GetObjectType() == BLOCK)
+	if (hit_object->GetObjectType() != BLOCK) return;
+
+	Vector2D obj_pos = location;
+	Vector2D obj_size = location + hit_box;
+
+	Vector2D target_pos = hit_object->GetLocation();
+	Vector2D target_size = target_pos + hit_object->GetBoxSize();
+
+	if (obj_size.x > target_pos.x && obj_pos.x < target_size.x &&
+		obj_size.y > target_pos.y && obj_pos.y < target_size.y)
 	{
-		//プレイヤーとオブジェクトの情報を取得
-		Vector2D obj_location = location;
-		Vector2D obj_size = location + box_size;
+		// めり込み量
+		float depth_x = Min<float>(obj_size.x - target_pos.x, target_size.x - obj_pos.x);
+		float depth_y = Min<float>(obj_size.y - target_pos.y, target_size.y - obj_pos.y);
 
-		Vector2D target_location = hit_object->GetLocation();
-		Vector2D target_size = target_location + hit_object->GetBoxSize();
-
-		//AABB衝突判定
-		if (obj_size.x > target_location.x && obj_location.x < target_size.x &&
-			obj_size.y > target_location.y && obj_location.y < target_size.y)
+		// Y方向優先（吸い込み防止）
+		if (depth_y < depth_x)
 		{
-			//押し戻し用のベクトル
-			Vector2D push{ 0.0f, 0.0f };
-
-			//めり込みの計算
-			float depth_x = Min<float>(obj_size.x - target_location.x, target_size.x - obj_location.x);
-			float depth_y = Min<float>(obj_size.y - target_location.y, target_size.y - obj_location.y);
-
-			//衝突の深さ（めり込み量）を計算
-			if (depth_x < depth_y)
+			if (obj_pos.y < target_pos.y)
 			{
-				// 空中でも横方向の衝突は行う（ただし、ジャンプ中の押し戻しだけを行わない）
-				if (is_jump == true)
+				// 上から着地
+				location.y -= depth_y;
+				if (velocity.y >= 0.0f)
 				{
-					// 横方向の押し戻しは行うが、ジャンプ中にめり込まないように位置調整
-					push.x = (obj_location.x < target_location.x) ? -depth_x * 0.5f : depth_x * 0.5f;
-				}
-
-				// 横方向の衝突処理
-				if (obj_location.x < target_location.x)
-				{
-					push.x = -depth_x;	//左側から衝突
-				}
-				else
-				{
-					push.x = depth_x;	//右側から衝突
-				}
-				velocity.x = 0.0f;
-			}
-			else
-			{
-				//縦方向の衝突処理
-				if (obj_location.y < target_location.y)
-				{
-					push.y = -depth_y; // 上から衝突
-
-					// 落下中のみジャンプフラグをリセット
-					if (velocity.y >= 0.0f) {
-						is_jump = false;
-					}
-				}
-				else
-				{
-					push.y = depth_y;	// 下から衝突
-				}
-
-				// もし落下中であれば速度をゼロに
-				if (velocity.y >= 0.0f) {
+					is_jump = false;
 					velocity.y = 0.0f;
 					g_velocity = 0.0f;
 				}
 			}
-
-			// 位置を修正
-			location += push;
+			else
+			{
+				// 下からぶつかり（あまり起きない）
+				location.y += depth_y;
+				if (velocity.y < 0.0f) velocity.y = 0.0f;
+			}
+		}
+		else
+		{
+			// 横方向の当たり判定（壁に当たる）
+			if (obj_pos.x < target_pos.x)
+			{
+				location.x -= depth_x;
+			}
+			else
+			{
+				location.x += depth_x;
+			}
+			velocity.x = 0.0f;
 		}
 	}
 }
+
+
+
+
+
+
