@@ -43,12 +43,19 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 		obj_size.y > target_pos.y && obj_pos.y < target_size.y)
 	{
 		// めり込み量
-		float depth_x = Min<float>(obj_size.x - target_pos.x, target_size.x - obj_pos.x);
-		float depth_y = Min<float>(obj_size.y - target_pos.y, target_size.y - obj_pos.y);
+		float depth_x = Max<float>(0.0f, Min<float>(obj_size.x - target_pos.x, target_size.x - obj_pos.x));
+		float depth_y = Max<float>(0.0f, Min<float>(obj_size.y - target_pos.y, target_size.y - obj_pos.y));
 
-		// Y方向優先（吸い込み防止）
-		if (depth_y < depth_x)
+		// 中心座標の差を用いて、どちら方向から衝突してるかを判断
+		Vector2D self_center = obj_pos + hit_box / 2.0f;
+		Vector2D target_center = target_pos + hit_object->GetBoxSize() / 2.0f;
+		Vector2D diff = self_center - target_center;
+
+		bool prioritize_y = fabs(diff.y) > fabs(diff.x);
+
+		if (prioritize_y)
 		{
+			// Y方向の押し出し
 			if (obj_pos.y < target_pos.y)
 			{
 				// 上から着地
@@ -62,14 +69,14 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 			}
 			else
 			{
-				// 下からぶつかり（あまり起きない）
+				// 下から衝突
 				location.y += depth_y;
 				if (velocity.y < 0.0f) velocity.y = 0.0f;
 			}
 		}
 		else
 		{
-			// 横方向の当たり判定（壁に当たる）
+			// X方向の押し出し
 			if (obj_pos.x < target_pos.x)
 			{
 				location.x -= depth_x;
@@ -81,6 +88,7 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 			velocity.x = 0.0f;
 		}
 	}
+
 }
 
 

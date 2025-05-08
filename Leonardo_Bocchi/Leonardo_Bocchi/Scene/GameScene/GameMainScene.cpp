@@ -195,7 +195,6 @@ void GameMainScene::ReLoadStage()
 	stage_reload = false;
 	LoadStage();
 
-	//CreateClone();
 }
 
 void GameMainScene::FindPlayer()

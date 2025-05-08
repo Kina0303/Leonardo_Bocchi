@@ -80,30 +80,22 @@ void GameObject::OnHitCollision(GameObject* hit_object)
 
 bool GameObject::CheckBoxCollision(GameObject* obj)
 {
-	////自分の左上座標
-	//Vector2D my_pos = location;
-	////自分の幅と高さの半分
-	//Vector2D my_size = hit_box / 2.0f;
-
-	////相手の左上座標
-	//Vector2D sub_pos = obj->GetLocation();
-	////相手の幅と高さの半分
-	//Vector2D sub_size = obj->GetBoxSize() / 2.0f;
-
-	////中心座標の差分
-	//Vector2D diff = (my_pos + my_size) - (sub_pos + sub_size);
-
-	////当たり判定の演算
-	//return (fabsf(diff.x) <= my_size.x + sub_size.x &&
-	//	fabsf(diff.y) <= my_size.y + sub_size.y);
-
+	//自分の左上座標
 	Vector2D my_pos = location;
-	Vector2D my_end = my_pos + hit_box;
+	//自分の幅と高さの半分
+	Vector2D my_size = hit_box / 2.0f;
 
-	Vector2D obj_pos = obj->GetLocation();
-	Vector2D obj_end = obj_pos + obj->GetBoxSize();
+	//相手の左上座標
+	Vector2D sub_pos = obj->GetLocation();
+	//相手の幅と高さの半分
+	Vector2D sub_size = obj->GetBoxSize() / 2.0f;
 
-	return (my_end.x > obj_pos.x && my_pos.x < obj_end.x &&
-		my_end.y > obj_pos.y && my_pos.y < obj_end.y);
+	//中心座標の差分
+	Vector2D diff = (my_pos + my_size) - (sub_pos + sub_size);
+
+	//当たり判定の演算
+	return (fabsf(diff.x) <= my_size.x + sub_size.x &&
+		fabsf(diff.y) <= my_size.y + sub_size.y);
+
 }
 

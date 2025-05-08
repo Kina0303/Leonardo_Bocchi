@@ -22,6 +22,9 @@ private:
 
 	std::vector<MoveRecord> move_history; //ˆÚ“®—š—ğ
 
+    //ƒ_ƒ[ƒW‚ğó‚¯‚Ä‚¢‚éŠÔ
+    int damage_time;
+
 public:
     Player();
     ~Player();
@@ -70,5 +73,7 @@ public:
     const std::vector<MoveRecord>& GetMoveHistory() const {
         return move_history;
     }
+
+    void ApplyDamage();
 };
 
