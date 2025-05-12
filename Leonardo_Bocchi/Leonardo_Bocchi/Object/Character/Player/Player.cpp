@@ -21,6 +21,8 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 
 	damage_time = 0;
 
+	image = LoadGraph("Resource/Images/player.png");
+
 	//image = animation_data[0];
 	//image = NULL;
 
@@ -37,6 +39,7 @@ void Player::Update()
 	//プレイヤーの動きを保存
 	SaveMoveHistory();
 
+	//ダメージを受けてからの無敵時間
 	if (damage_flg)
 	{
 		damage_time++;
@@ -54,7 +57,7 @@ void Player::Update()
 
 void Player::Draw(Vector2D offset, double rate) const
 {
-	__super::Draw(offset, 1.1);
+	__super::Draw(offset, 1.5);
 	//DrawBoxAA(location.x, location.y, location.x + box_size.x, location.y + box_size.y, GetColor(255, 0, 0), FALSE);
 
 	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP × %d", hp);
