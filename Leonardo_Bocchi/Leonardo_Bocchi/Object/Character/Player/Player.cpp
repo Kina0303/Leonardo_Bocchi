@@ -128,7 +128,7 @@ void Player::IdleState(InputControl* input)
 
 void Player::LeftState(InputControl* input)
 {
-	velocity.x -= 0.5;
+	velocity.x -= 1.0f;
 	flip_flg = TRUE;  // 左向きフラグ
 
 	// 左キーが離されたら待機状態
@@ -145,7 +145,7 @@ void Player::LeftState(InputControl* input)
 
 void Player::RightState(InputControl* input)
 {
-	velocity.x += 0.5;
+	velocity.x += 1.0f;
 	flip_flg = FALSE;  // 右向きフラグ
 
 	// 右キーが離されたら待機状態
@@ -162,7 +162,7 @@ void Player::RightState(InputControl* input)
 
 void Player::JumpState(InputControl* input)
 {
-	velocity.y -= 6.0f;
+	velocity.y -= 5.0f;
 	is_jump = true;
 
 	// ジャンプキーが離されたら待機状態に戻す
@@ -182,10 +182,10 @@ void Player::DeadState(InputControl* input)
 void Player::ApplyDeceleration()
 {
 	if (velocity.x < -1e-6f) {
-		velocity.x = Min<float>(velocity.x + 0.2f, 0.0f);
+		velocity.x = Min<float>(velocity.x + 0.5f, 0.0f);
 	}
 	else if (velocity.x > 1e-6f) {
-		velocity.x = Max<float>(velocity.x - 0.2f, 0.0f);
+		velocity.x = Max<float>(velocity.x - 0.5f, 0.0f);
 	}
 }
 
