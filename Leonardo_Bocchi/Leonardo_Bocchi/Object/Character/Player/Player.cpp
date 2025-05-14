@@ -2,7 +2,7 @@
 #include "Player.h"
 #include "../../../Utility/UtilityList.h"
 
-Player::Player() : player_state(PlayerState::eIDLE), animation_data(),damage_time()
+Player::Player() : animation_data(),damage_timer()
 {
 }
 
@@ -19,7 +19,7 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 	velocity = { 0.0f };
 	g_velocity = 0.350f;
 
-	damage_time = 0;
+	damage_timer = 0;
 
 	image = LoadGraph("Resource/Images/player.png");
 
@@ -34,7 +34,7 @@ void Player::Update()
 	__super::Update();
 
 	//移動処理
-	Movement();
+	HandleInput();
 
 	//プレイヤーの動きを保存
 	SaveMoveHistory();
@@ -42,14 +42,19 @@ void Player::Update()
 	//ダメージを受けてからの無敵時間
 	if (damage_flg)
 	{
-		damage_time++;
-		if (damage_time >= 180)
+		damage_timer++;
+		if (damage_timer >= 180)
 		{
-			damage_time = 0;
+			damage_timer = 0;
 			damage_flg = false;
 		}
 	}
 
+	// 最大速度の制限
+	ConstrainVelocity();
+
+	//位置を更新
+	location += velocity;
 
 	//アニメーション管理
 	//AnimationControl();
@@ -61,122 +66,26 @@ void Player::Draw(Vector2D offset, double rate) const
 	//DrawBoxAA(location.x, location.y, location.x + box_size.x, location.y + box_size.y, GetColor(255, 0, 0), FALSE);
 
 	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP × %d", hp);
+	DrawFormatString(10, 100, GetColor(255, 255, 255), "%f     %f", velocity.x,velocity.y);
+
+	switch (action_state)
+	{
+	case Player::ActionState::IDLE:
+		DrawFormatString(10, 140, GetColor(255, 255, 255), "State IDLE");
+		break;
+	case Player::ActionState::JUMP:
+		DrawFormatString(10, 160, GetColor(255, 255, 255), "State JUMP");
+		break;
+	case Player::ActionState::DAMAGE:
+		DrawFormatString(10, 180, GetColor(255, 255, 255), "State DAMEGE");
+		break;
+	default:
+		break;
+	}
 }
 void Player::Finalize()
 {
 	animation_data.clear();
-}
-
-void Player::Movement()
-{
-	//入力情報の取得
-	InputControl* input = InputControl::GetInstance();
-
-	switch (player_state)
-	{
-		//何も動いていない状態（待機）
-	case PlayerState::eIDLE:
-		// 待機状態の処理
-		IdleState(input);
-		break;
-		//左矢印キーを押したら
-	case PlayerState::eLEFT:
-		LeftState(input);
-		break;
-		//右矢印キーを押したら
-	case PlayerState::eRIGHT:
-		RightState(input);
-		break;
-		//ジャンプキー押したら
-	case PlayerState::eJUMP:      
-		JumpState(input);
-		break;
-	case PlayerState::eDAMAGE:
-	case PlayerState::eDEAD:
-	default:
-		break;
-	}
-
-	// 最大速度の制限
-	ConstrainVelocity();
-
-	//位置を更新
-	location += velocity;
-}
-
-void Player::IdleState(InputControl* input)
-{
-	// 待機状態（ボタンが押されていないときの減速処理）
-	ApplyDeceleration();
-
-	// 左右移動
-	if (input->GetButton(XINPUT_BUTTON_DPAD_LEFT) || input->GetKey(KEY_INPUT_A))
-	{
-		player_state = PlayerState::eLEFT;
-	}
-	else if (input->GetButton(XINPUT_BUTTON_DPAD_RIGHT) || input->GetKey(KEY_INPUT_D))
-	{
-		player_state = PlayerState::eRIGHT;
-	}
-
-	// ジャンプ
-	if (!is_jump && (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE))) 
-	{
-		player_state = PlayerState::eJUMP;
-	}
-}
-
-void Player::LeftState(InputControl* input)
-{
-	velocity.x -= 1.0f;
-	flip_flg = TRUE;  // 左向きフラグ
-
-	// 左キーが離されたら待機状態
-	if (!input->GetButton(XINPUT_BUTTON_DPAD_LEFT) || input->GetKeyDown(KEY_INPUT_A)) {
-		player_state = PlayerState::eIDLE;
-	}
-
-	// ジャンプ
-	if (!is_jump && (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE)))
-	{
-		player_state = PlayerState::eJUMP;
-	}
-}
-
-void Player::RightState(InputControl* input)
-{
-	velocity.x += 1.0f;
-	flip_flg = FALSE;  // 右向きフラグ
-
-	// 右キーが離されたら待機状態
-	if (!input->GetButton(XINPUT_BUTTON_DPAD_RIGHT) || input->GetKeyDown(KEY_INPUT_D)) {
-		player_state = PlayerState::eIDLE;
-	}
-
-	// ジャンプ
-	if (!is_jump && (input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyDown(KEY_INPUT_SPACE)))
-	{
-		player_state = PlayerState::eJUMP;
-	}
-}
-
-void Player::JumpState(InputControl* input)
-{
-	velocity.y -= 5.0f;
-	is_jump = true;
-
-	// ジャンプキーが離されたら待機状態に戻す
-	if (!input->GetButtonDown(XINPUT_BUTTON_A) || input->GetKeyUp(KEY_INPUT_SPACE)) {
-		player_state = PlayerState::eIDLE;
-	}
-}
-
-void Player::DamageState(InputControl* input)
-{
-}
-
-void Player::DeadState(InputControl* input)
-{
 }
 
 void Player::ApplyDeceleration()
@@ -192,10 +101,53 @@ void Player::ApplyDeceleration()
 void Player::ConstrainVelocity()
 {
 	// 最大速度の制限
-	const float max_speed = 7.5f;
+	const float max_speed = 7.0f;
 	velocity.x = Min<float>(Max<float>(velocity.x, -max_speed), max_speed);
 }
 
+void Player::HandleInput()
+{
+	InputControl* input = InputControl::GetInstance();
+
+	// 移動入力
+	if (input->GetButton(XINPUT_BUTTON_DPAD_LEFT)) {
+		move = MoveDirection::LEFT;
+		velocity.x -= 3.0f;
+		flip_flg = true;
+	}
+	else if (input->GetButton(XINPUT_BUTTON_DPAD_RIGHT))
+	{
+		move = MoveDirection::RIGHT;
+		velocity.x += 3.0f;
+		flip_flg = false;
+	}
+	else
+	{
+		move = MoveDirection::NONE;
+		ApplyDeceleration();
+	}
+
+	//ジャンプ入力
+	if (input->GetButtonDown(XINPUT_BUTTON_A) && jump_count < 2)
+	{
+		if (jump_count == 0) {
+			velocity.y = -5.0f; // 1段目
+
+		}
+		else if (jump_count == 1) {
+			velocity.y = -7.5f; 
+		}
+		jump_count++;
+		on_ground = false;
+		action_state = ActionState::JUMP;
+	}
+
+	// 状態更新
+	if (action_state != ActionState::DAMAGE) {
+		if (velocity.x == 0.0f || velocity.y == 0.0f && on_ground)
+			action_state = ActionState::IDLE;
+	}
+}
 
 void Player::AnimationControl()
 {
@@ -239,7 +191,7 @@ void Player::SaveMoveHistory()
 {
 	MoveRecord record;
 	record.position = this->location;
-	record.is_jumping = this->is_jump;
+	//record.is_jumping = this->is_jump;
 
 	move_history.push_back(record);
 }

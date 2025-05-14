@@ -3,27 +3,25 @@
 #include <vector>
 #include "../../../Utility/InputControl.h"
 
-enum class PlayerState
-{
-    eIDLE,
-    eLEFT,
-    eRIGHT,
-    eJUMP,
-    eDAMAGE,
-    eDEAD
-};
 
 class Player :
     public CharaBase
 {
 private:
-    PlayerState player_state;       //プレイヤーの状態
     std::vector<int> animation_data;//アニメーションデータ
 
 	std::vector<MoveRecord> move_history; //移動履歴
 
     //ダメージを受けている時間
-    int damage_time;
+    int damage_timer;
+
+    //状態管理
+    enum class ActionState { IDLE, JUMP, DAMAGE };
+    enum class MoveDirection { NONE, LEFT, RIGHT };
+
+    ActionState action_state = ActionState::IDLE;
+    MoveDirection move = MoveDirection::NONE;
+
 
 public:
     Player();
@@ -39,27 +37,12 @@ public:
     void Finalize()override;
 
 public:
-    //プレイヤーの動き
-    void Movement();
-
-	//プレイヤーのアイドル状態
-    void IdleState(InputControl* input);
-	//プレイヤーの左移動
-	void LeftState(InputControl* input);
-	//プレイヤーの右移動
-	void RightState(InputControl* input);
-	//プレイヤーのジャンプ
-	void JumpState(InputControl* input);
-
-	//プレイヤーのダメージ
-	void DamageState(InputControl* input);
-	//プレイヤーの死亡
-	void DeadState(InputControl* input);
-
 
     void ApplyDeceleration();
     void ConstrainVelocity();
     
+
+    void HandleInput();
 
     //アニメーション管理
     void AnimationControl();
