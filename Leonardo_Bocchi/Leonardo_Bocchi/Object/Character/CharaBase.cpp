@@ -29,6 +29,7 @@ void CharaBase::Draw(Vector2D offset, double rate) const
 void CharaBase::Finalize()
 {
 }
+
 void CharaBase::OnHitCollision(GameObject* hit_object)
 {
 	if (hit_object->GetObjectType() != BLOCK) return;
@@ -39,48 +40,55 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 	Vector2D target_pos = hit_object->GetLocation();
 	Vector2D target_size = target_pos + hit_object->GetBoxSize();
 
-	// 当たっていないなら return
-	if (obj_size.x <= target_pos.x || obj_pos.x >= target_size.x ||
-		obj_size.y <= target_pos.y || obj_pos.y >= target_size.y)
-		return;
-
-	// めり込み量
-	float depth_x = Min(obj_size.x - target_pos.x, target_size.x - obj_pos.x);
-	float depth_y = Min(obj_size.y - target_pos.y, target_size.y - obj_pos.y);
-
-	// ---------- Y方向の押し出しを先に処理 ----------
-	if (depth_y <= depth_x)
+	if (obj_size.x > target_pos.x && obj_pos.x < target_size.x &&
+		obj_size.y > target_pos.y && obj_pos.y < target_size.y)
 	{
-		if (obj_pos.y < target_pos.y)
+		// めり込み量
+		float depth_x = Max<float>(0.0f, Min<float>(obj_size.x - target_pos.x, target_size.x - obj_pos.x));
+		float depth_y = Max<float>(0.0f, Min<float>(obj_size.y - target_pos.y, target_size.y - obj_pos.y));
+
+		// 中心座標の差を用いて、どちら方向から衝突してるかを判断
+		Vector2D self_center = obj_pos + hit_box / 2.0f;
+		Vector2D target_center = target_pos + hit_object->GetBoxSize() / 2.0f;
+		Vector2D diff = self_center - target_center;
+
+		bool prioritize_y = fabs(diff.y) > fabs(diff.x) && depth_y < depth_x;
+
+		if (prioritize_y)
 		{
-			// 上から接触（床の上に乗る）
-			location.y -= depth_y;
-			if (velocity.y >= 0.0f)
+			// Y方向の押し出し
+			if (obj_pos.y < target_pos.y)
 			{
-				velocity.y = 0.0f;
-				g_velocity = 0.0f;
-				on_ground = true;
-				jump_count = 0;
+				// 上から着地
+				location.y -= depth_y;
+				if (velocity.y >= 0.0f)
+				{
+					velocity.y = 0.0f;
+					g_velocity = 0.0f;
+					jump_count = 0;
+					on_ground = true;
+				}
+			}
+			else
+			{
+				// 下から衝突
+				location.y += depth_y;
+				if (velocity.y < 0.0f) velocity.y = 0.0f;
 			}
 		}
 		else
 		{
-			// 下から接触（天井に当たる）
-			location.y += depth_y;
-			if (velocity.y < 0.0f) velocity.y = 0.0f;
+			// X方向の押し出し
+			if (obj_pos.x < target_pos.x)
+			{
+				location.x -= depth_x;
+			}
+			else
+			{
+				location.x += depth_x;
+			}
+			velocity.x = 0.0f;
 		}
 	}
-	else
-	{
-		// ---------- X方向の押し出し ----------
-		if (obj_pos.x < target_pos.x)
-		{
-			location.x -= depth_x;
-		}
-		else
-		{
-			location.x += depth_x;
-		}
-		velocity.x = 0.0f;
-	}
+
 }

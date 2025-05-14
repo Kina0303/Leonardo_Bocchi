@@ -7,6 +7,7 @@
 struct MoveRecord {
 	Vector2D position;
 	bool is_jumping;
+	bool flip;
 };
 
 class CharaBase :

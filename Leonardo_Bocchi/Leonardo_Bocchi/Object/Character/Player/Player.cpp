@@ -27,6 +27,7 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 	//image = NULL;
 
 	animation_count = 0;
+	jump_count = 1;
 }
 
 void Player::Update()
@@ -136,7 +137,7 @@ void Player::HandleInput()
 		action_state = ActionState::JUMP;
 	}
 
-	if (input->GetButton(XINPUT_BUTTON_A) && jump_count < 2 && jump_time <= 20)
+	if (input->GetButton(XINPUT_BUTTON_A) && jump_count < 1 && jump_time <= 20)
 	{
 		jump_time++;
 		if (jump_count == 0) {
@@ -195,6 +196,7 @@ void Player::SaveMoveHistory()
 	MoveRecord record;
 	record.position = this->location;
 	//record.is_jumping = this->is_jump;
+	record.flip = this->flip_flg;
 
 	move_history.push_back(record);
 }

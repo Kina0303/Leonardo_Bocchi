@@ -18,6 +18,8 @@ void Enemy::Initialize(Vector2D _location, Vector2D _box_size)
 	velocity = { 0.0f };
 	g_velocity = 0.0f;
 
+	image = LoadGraph("Resource/Images/enemy.png");
+
 	animation_count = 0;
 }
 
@@ -33,7 +35,7 @@ void Enemy::Update()
 	{
 		const auto& record = replay_history[current_frame];
 		SetLocation(record.position);
-
+		flip_flg = record.flip;
 		++current_frame;
 	}
 
@@ -41,8 +43,8 @@ void Enemy::Update()
 
 void Enemy::Draw(Vector2D offset, double rate) const
 {
-	//__super::Draw(offset, 1.0);
-	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(0, 255, 0), TRUE);
+	__super::Draw(offset, 1.5);
+	//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(0, 255, 0), TRUE);
 	DrawFormatString(offset.x, offset.y, GetColor(255, 0, 0), "Enemy");
 	DrawFormatString(10, 60, GetColor(255, 0, 0), "%f",location.x);
 }
