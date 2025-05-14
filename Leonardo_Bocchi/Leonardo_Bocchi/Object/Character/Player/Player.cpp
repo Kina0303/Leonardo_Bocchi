@@ -67,7 +67,7 @@ void Player::Draw(Vector2D offset, double rate) const
 
 	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP × %d", hp);
 	DrawFormatString(10, 100, GetColor(255, 255, 255), "%f     %f", velocity.x,velocity.y);
-
+	DrawFormatString(10, 80, GetColor(255, 255, 255), "%d", jump_time);
 	switch (action_state)
 	{
 	case Player::ActionState::IDLE:
@@ -130,16 +130,19 @@ void Player::HandleInput()
 	//ジャンプ入力
 	if (input->GetButtonDown(XINPUT_BUTTON_A) && jump_count < 2)
 	{
-		if (jump_count == 0) {
-			velocity.y = -5.0f; // 1段目
-
-		}
-		else if (jump_count == 1) {
-			velocity.y = -7.5f; 
-		}
+		jump_time = 0;
 		jump_count++;
 		on_ground = false;
 		action_state = ActionState::JUMP;
+	}
+
+	if (input->GetButton(XINPUT_BUTTON_A) && jump_count < 2 && jump_time <= 20)
+	{
+		jump_time++;
+		if (jump_count == 0) {
+			velocity.y = Max<float>(-9.0f, -4.0f - (float)jump_time * 0.08f);
+
+		}
 	}
 
 	// 状態更新

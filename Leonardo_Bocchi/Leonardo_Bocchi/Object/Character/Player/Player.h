@@ -12,6 +12,8 @@ private:
 
 	std::vector<MoveRecord> move_history; //ˆÚ“®—š—ğ
 
+    int jump_time = 0;
+
     //ƒ_ƒ[ƒW‚ğó‚¯‚Ä‚¢‚éŠÔ
     int damage_timer;
 
