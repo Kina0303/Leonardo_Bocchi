@@ -50,8 +50,8 @@ void GameMainScene::Draw() const
 {
 	//背景
 	DrawBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GetColor(150, 150, 150), TRUE); // 背景を黒で塗りつぶす
-	DrawFormatString(10, 10, GetColor(255, 255, 255), "メイン画面");
-	DrawFormatString(10, 40, GetColor(255, 255, 255), "ステージサイズ：幅 = %d      高さ = %d\n", stage_width_num, stage_height_num);
+	//DrawFormatString(10, 10, GetColor(255, 255, 255), "メイン画面");
+	//DrawFormatString(10, 40, GetColor(255, 255, 255), "ステージサイズ：幅 = %d      高さ = %d\n", stage_width_num, stage_height_num);
 
 	DrawFormatString(10, 70, GetColor(255, 255, 255), "LOOP : %d\n", clear_count);
 

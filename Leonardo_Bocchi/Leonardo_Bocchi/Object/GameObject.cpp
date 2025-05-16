@@ -36,7 +36,8 @@ void GameObject::Draw(Vector2D offset, double rate) const
 		//メンバの情報を基に画像を描画する
 		DrawRotaGraphF(offset.x + (box_size.x / 2), offset.y + (box_size.y / 2), rate, 0.0, image, TRUE, flip_flg);
 		// デバッグ用の当たり判定ボックス描画
-		DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
+
+		//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
 	}
 
 	//描画範囲の可視化

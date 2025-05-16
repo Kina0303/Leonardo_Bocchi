@@ -15,5 +15,7 @@ public:
     void Draw(Vector2D offset, double rate) const override;
     //I—¹ˆ—
     void Finalize()override;
+
+    void Draw3DBlock(Vector2D offset)const;
 };
 

@@ -45,8 +45,8 @@ void Enemy::Draw(Vector2D offset, double rate) const
 {
 	__super::Draw(offset, 1.5);
 	//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(0, 255, 0), TRUE);
-	DrawFormatString(offset.x, offset.y, GetColor(255, 0, 0), "Enemy");
-	DrawFormatString(10, 60, GetColor(255, 0, 0), "%f",location.x);
+	//DrawFormatString(offset.x, offset.y, GetColor(255, 0, 0), "Enemy");
+	//DrawFormatString(10, 60, GetColor(255, 0, 0), "%f",location.x);
 }
 
 void Enemy::Finalize()
