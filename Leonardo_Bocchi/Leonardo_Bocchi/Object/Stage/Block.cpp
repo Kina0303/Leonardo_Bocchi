@@ -15,8 +15,8 @@ void Block::Update()
 void Block::Draw(Vector2D offset, double rate) const
 {
 	//__super::Draw(offset, 1.0);
-	//DrawBoxAA(offset.x + 10, offset.y - 10, offset.x + box_size.x + 10, offset.y + box_size.y - 10, GetColor(255, 0, 0), FALSE);
-	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), TRUE);
+	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
+	//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), TRUE);
 	//DrawBoxAA(location.x, location.y, location.x + box_size.x, location.y + box_size.y, GetColor(0, 0, 0), TRUE);
 	//DrawBoxAA(location.x, location.y, location.x + box_size.x, location.y + box_size.y, GetColor(255, 255, 255), FALSE);
 	//Draw3DBlock(offset);

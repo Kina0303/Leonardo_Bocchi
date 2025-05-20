@@ -14,7 +14,6 @@ class CharaBase :
     public GameObject
 {
 protected:
-	int hp = 0;
 	float g_velocity = 0.0f;       //d—Í‰Á‘¬“x
 
 	bool on_ground = false;

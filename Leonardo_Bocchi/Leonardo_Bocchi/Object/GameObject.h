@@ -15,11 +15,10 @@ protected:
 	int image;			//描画する画像データ
 	int flip_flg;		//描画する反転フラグ
 
-	bool stage_hit_flg[2][4];		//objectとステージの当たり判定
-	float move[4] = { 0,0,0,0 };	//objectが当たり判定に被らないようにする時の各方向の移動量
-
 	eObjectType object_type;		//オブジェクトの種類
 
+	int hp = 0;
+	bool is_delete = false;
 
 public:
 	GameObject();
@@ -55,6 +54,12 @@ public:
 	//当たり判定
 	bool CheckBoxCollision(GameObject* obj);
 
+	//削除フラグを取得
+	bool GetIsDelete() { return is_delete; }
+
+	void SetDelete() { is_delete = true; }
+
+	int GetHp() { return hp; }
 };
 
 

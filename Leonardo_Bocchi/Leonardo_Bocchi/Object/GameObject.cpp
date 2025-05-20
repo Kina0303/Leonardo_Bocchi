@@ -3,7 +3,7 @@
 #include <math.h>
 #include "../common.h"
 
-GameObject::GameObject() : location(), box_size(),hit_box(), image(NULL), object_type(), flip_flg(FALSE), move(), stage_hit_flg()
+GameObject::GameObject() : location(), box_size(),hit_box(), image(NULL), object_type(), flip_flg(FALSE)
 {
 }
 

@@ -208,6 +208,12 @@ void GameMainScene::FindPlayer()
 			break;
 		}
 	}
+
+	if (player->GetHp() <= 0)
+	{
+		player->SetDelete();
+		ReLoadStage();
+	}
 }
 
 void GameMainScene::CreateClone()
