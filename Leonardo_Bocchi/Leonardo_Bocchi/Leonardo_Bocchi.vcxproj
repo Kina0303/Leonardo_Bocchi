@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Object\Stage\MoveBlock.cpp" />
     <ClCompile Include="Object\Item\InvincibleItem.cpp" />
     <ClCompile Include="Object\Item\HealItem.cpp" />
     <ClCompile Include="Object\Gimmick\GoalPoint.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="Utility\Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Object\Stage\MoveBlock.h" />
     <ClInclude Include="Object\Item\InvincibleItem.h" />
     <ClInclude Include="Object\Item\HealItem.h" />
     <ClInclude Include="Object\Gimmick\GoalPoint.h" />

@@ -147,12 +147,15 @@ void GameMainScene::SetStage()
 			case TRAP:
 				CreateObject<Trap>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
+			case MOVE_BLOCK:
+				CreateObject<MoveBlock>(Vector2D(j * BOX_SIZE, y), Vector2D(144.0f, (float)BOX_SIZE));
+				break;
 			case GOAL:
 				// ゴールポイントを生成
 				CreateObject<GoalPoint>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
 			default:
-				break;  // それ以外は何もしない
+				break; 
 			}
 		}
 	}

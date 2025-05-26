@@ -8,6 +8,7 @@ enum eObjectType
 	HEAL,
 	INVINCIBLE,
 	TRAP,
+	MOVE_BLOCK,
 	GOAL,
 
 };

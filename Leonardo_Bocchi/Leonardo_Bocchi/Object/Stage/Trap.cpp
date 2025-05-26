@@ -23,8 +23,4 @@ void Trap::Finalize()
 
 void Trap::OnHitCollision(GameObject* hit_object)
 {
-	if (hit_object->GetObjectType() == PLAYER)
-	{
-		this->SetDelete();
-	}
 }
