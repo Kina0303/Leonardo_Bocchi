@@ -5,4 +5,7 @@
 
 #include "Stage/Block.h"
 
+#include "Item/HealItem.h"
+#include "Item/InvincibleItem.h"
+
 #include "Gimmick/GoalPoint.h"

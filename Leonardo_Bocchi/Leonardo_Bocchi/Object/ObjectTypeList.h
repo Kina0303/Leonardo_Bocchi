@@ -5,6 +5,8 @@ enum eObjectType
 	BLOCK,
 	PLAYER,
 	ENEMY,
+	HEAL,
+	INVINCIBLE,
 	GOAL,
 
 };

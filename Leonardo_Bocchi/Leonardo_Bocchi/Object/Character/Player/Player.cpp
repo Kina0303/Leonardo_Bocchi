@@ -66,8 +66,9 @@ void Player::Draw(Vector2D offset, double rate) const
 	__super::Draw(offset, 1.5);
 	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
 
+#ifdef _DEBUG
 	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP ~ %d", hp);
-	DrawFormatString(10, 100, GetColor(255, 255, 255), "%f     %f", velocity.x,velocity.y);
+	DrawFormatString(10, 100, GetColor(255, 255, 255), "%f     %f", velocity.x, velocity.y);
 	DrawFormatString(10, 80, GetColor(255, 255, 255), "%d", jump_time);
 	switch (action_state)
 	{
@@ -83,6 +84,9 @@ void Player::Draw(Vector2D offset, double rate) const
 	default:
 		break;
 	}
+#endif // DEBUG
+
+	
 }
 void Player::Finalize()
 {
@@ -186,6 +190,11 @@ void Player::OnHitCollision(GameObject* hit_object)
 			//ƒ_ƒ[ƒW‚ðŽó‚¯‚é
 			ApplyDamage();
 		}
+	}
+
+	if (hit_object->GetObjectType() == HEAL)
+	{
+		hp += 1;
 	}
 
 }
