@@ -14,9 +14,10 @@ class CharaBase :
     public GameObject
 {
 protected:
-	float g_velocity = 0.0f;       //重力加速度
+	float g_velocity = 0.0f;         //重力加速度
+	float max_fall_speed = 0.0f;     //最大落下速度
+	bool on_ground = false;           //地面にいるかどうか
 
-	bool on_ground = false;
 	int jump_count = 0;
 
 	bool damage_flg = false;	//ダメージを受けたかどうか
@@ -37,5 +38,8 @@ public:
 	virtual void OnHitCollision(GameObject* hit_object)override;
 
 	bool IsOnGround() const { return on_ground; }
+
+	//重力適用
+	virtual void ApplyGravity(); 
 };
 

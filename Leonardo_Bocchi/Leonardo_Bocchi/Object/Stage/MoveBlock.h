@@ -3,6 +3,9 @@
 class MoveBlock :
     public GameObject
 {
+private:
+    float move_range_right = 0.0f;
+    float move_range_left = 0.0f;
 public:
     //‰Šú‰»ˆ—
     void Initialize(Vector2D _location, Vector2D _box_size) override;

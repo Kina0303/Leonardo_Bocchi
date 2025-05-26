@@ -134,7 +134,7 @@ void GameMainScene::SetStage()
 				break;
 			case PLAYER:
 				// プレイヤーを生成
-				CreateObject<Player>(Vector2D(j * BOX_SIZE, y), Vector2D(64.0f, 96.0f));
+				CreateObject<Player>(Vector2D(j * BOX_SIZE, y), Vector2D(48.0f, 96.0f));
 				break;
 				// case ENEMY:
 					// ここでエネミーを生成することも可能（コメントアウトされています）
@@ -148,7 +148,7 @@ void GameMainScene::SetStage()
 				CreateObject<Trap>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
 			case MOVE_BLOCK:
-				CreateObject<MoveBlock>(Vector2D(j * BOX_SIZE, y), Vector2D(144.0f, (float)BOX_SIZE));
+				CreateObject<MoveBlock>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE, 24.0f));
 				break;
 			case GOAL:
 				// ゴールポイントを生成

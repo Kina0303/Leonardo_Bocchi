@@ -17,7 +17,9 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 	object_type = PLAYER;
 	hp = 2;
 	velocity = { 0.0f };
-	g_velocity = 0.350f;
+	g_velocity = 0.35f;
+	max_fall_speed = 10.0f;
+	on_ground = false;
 
 	damage_timer = 0;
 
@@ -134,7 +136,8 @@ void Player::HandleInput()
 	else if (input->GetButton(XINPUT_BUTTON_DPAD_RIGHT))
 	{
 		move = MoveDirection::RIGHT;
-		velocity.x += 3.0f;
+		velocity.x += 0.5f;
+		//velocity.x += 3.0f;
 		flip_flg = false;
 	}
 	else
@@ -163,7 +166,7 @@ void Player::HandleInput()
 
 	// èÛë‘çXêV
 	if (action_state != ActionState::DAMAGE) {
-		if (velocity.x == 0.0f || velocity.y == 0.0f && on_ground)
+		if ((velocity.x == 0.0f || velocity.y == 0.0f) && on_ground)
 			action_state = ActionState::IDLE;
 	}
 }

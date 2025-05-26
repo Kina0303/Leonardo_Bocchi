@@ -22,4 +22,8 @@ void HealItem::Finalize()
 
 void HealItem::OnHitCollision(GameObject* hit_object)
 {
+	if (hit_object->GetObjectType() == PLAYER)
+	{
+		this->SetDelete();
+	}
 }
