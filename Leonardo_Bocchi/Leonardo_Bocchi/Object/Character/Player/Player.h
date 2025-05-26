@@ -25,6 +25,9 @@ private:
     MoveDirection move = MoveDirection::NONE;
 
 
+    bool is_invincible;
+    int invincible_timer;
+
 public:
     Player();
     ~Player();

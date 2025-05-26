@@ -7,6 +7,7 @@ enum eObjectType
 	ENEMY,
 	HEAL,
 	INVINCIBLE,
+	TRAP,
 	GOAL,
 
 };

@@ -144,6 +144,9 @@ void GameMainScene::SetStage()
 			case INVINCIBLE:
 				CreateObject<InvincibleItem>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
 				break;
+			case TRAP:
+				CreateObject<Trap>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
+				break;
 			case GOAL:
 				// ゴールポイントを生成
 				CreateObject<GoalPoint>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));

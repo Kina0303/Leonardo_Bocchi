@@ -2,7 +2,7 @@
 #include "Player.h"
 #include "../../../Utility/UtilityList.h"
 
-Player::Player() : animation_data(),damage_timer()
+Player::Player() : animation_data(),damage_timer(),is_invincible(false),invincible_timer(0)
 {
 }
 
@@ -51,6 +51,15 @@ void Player::Update()
 		}
 	}
 
+	if (is_invincible)
+	{
+		invincible_timer++;
+		if (invincible_timer >= 240)
+		{
+			invincible_timer = 0;
+			is_invincible = false;
+		}
+	}
 	// 最大速度の制限
 	ConstrainVelocity();
 
@@ -70,6 +79,8 @@ void Player::Draw(Vector2D offset, double rate) const
 	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP × %d", hp);
 	DrawFormatString(10, 100, GetColor(255, 255, 255), "%f     %f", velocity.x, velocity.y);
 	DrawFormatString(10, 80, GetColor(255, 255, 255), "%d", jump_time);
+	DrawFormatString(10, 60, GetColor(255, 255, 255), "invicible :%d", is_invincible);
+	DrawFormatString(10, 40, GetColor(255, 255, 255), "invicible_timer :%d", invincible_timer);
 	switch (action_state)
 	{
 	case Player::ActionState::IDLE:
@@ -183,18 +194,29 @@ void Player::OnHitCollision(GameObject* hit_object)
 {
 	__super::OnHitCollision(hit_object);
 
-	if (hit_object->GetObjectType() == ENEMY)
+	//エネミーヒット時 OR トラップヒット時
+	if (hit_object->GetObjectType() == ENEMY || hit_object->GetObjectType() == TRAP)
 	{
-		if (!damage_flg)
+		if (!damage_flg && !is_invincible)
 		{
 			//ダメージを受ける
 			ApplyDamage();
 		}
 	}
 
+	//回復アイテムヒット時
 	if (hit_object->GetObjectType() == HEAL)
 	{
 		hp += 1;
+	}
+
+	//無敵アイテムヒット時
+	if (hit_object->GetObjectType() == INVINCIBLE)
+	{
+		if (!is_invincible)
+		{
+			is_invincible = true;
+		}
 	}
 
 }
