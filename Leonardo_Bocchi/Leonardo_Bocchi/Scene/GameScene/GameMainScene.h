@@ -19,6 +19,9 @@ private:
 
 	std::vector<std::vector<MoveRecord>>stage_clear_history; //ステージクリア履歴
 
+	int back_ground_image; //背景画像
+
+
 public:
 	GameMainScene();
 	~GameMainScene();
@@ -50,5 +53,11 @@ public:
 
 	//エネミーを生成
 	void CreateClone();
+
+	//アイテムの生成
+	void CreateItem();
+
+	//ギミックの生成
+	void CreateGimmick();
 };
 

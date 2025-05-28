@@ -18,7 +18,7 @@ void Enemy::Initialize(Vector2D _location, Vector2D _box_size)
 	velocity = { 0.0f };
 	g_velocity = 0.0f;
 
-	image = LoadGraph("Resource/Images/enemy.png");
+	image = LoadGraph("Resource/Images/Character/Enemy/enemy.png");
 
 	animation_count = 0;
 }

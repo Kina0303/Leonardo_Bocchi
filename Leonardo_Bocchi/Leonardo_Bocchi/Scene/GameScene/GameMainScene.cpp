@@ -5,10 +5,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <random>
 
-
-
-GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr)
+GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr), back_ground_image(0)
 {
 }
 
@@ -23,6 +22,9 @@ void GameMainScene::Initialize()
 
 	//カメラの初期位置を設定
 	camera_location = Vector2D(0.0f, 0.0f); //カメラの初期位置を設定
+
+	back_ground_image = LoadGraph("Resource/Images/back_ground.png"); // 背景画像を読み込む
+
 }
 
 eSceneType GameMainScene::Update()
@@ -36,12 +38,14 @@ eSceneType GameMainScene::Update()
 		//ステージの再読み込み
 		ReLoadStage();
 	}
-
-	//プレイヤーの取得
-	FindPlayer();
-
 	//カメラ更新
 	UpdateCamera();
+
+	// プレイヤーがいない場合のみ探す
+	if (!player)
+	{
+		FindPlayer();
+	}
 
 	return __super::Update();
 }
@@ -49,7 +53,8 @@ eSceneType GameMainScene::Update()
 void GameMainScene::Draw() const
 {
 	//背景
-	DrawBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GetColor(150, 150, 150), TRUE); // 背景を黒で塗りつぶす
+	//DrawBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GetColor(150, 150, 150), TRUE); // 背景を黒で塗りつぶす
+	DrawGraph(0, 0, back_ground_image, TRUE); // 背景画像を読み込む
 	//DrawFormatString(10, 10, GetColor(255, 255, 255), "メイン画面");
 	//DrawFormatString(10, 40, GetColor(255, 255, 255), "ステージサイズ：幅 = %d      高さ = %d\n", stage_width_num, stage_height_num);
 
@@ -61,6 +66,8 @@ void GameMainScene::Draw() const
 
 void GameMainScene::Finalize()
 {
+	DeleteGraph(back_ground_image);
+	back_ground_image = 0;
 }
 
 eSceneType GameMainScene::GetNowSceneType() const
@@ -117,54 +124,28 @@ void GameMainScene::LoadStage()
 
 void GameMainScene::SetStage()
 {
+	for (int i = 0; i < stage_height_num; ++i) {
+		for (int j = 0; j < stage_width_num; ++j) {
+			int x = j * BOX_SIZE;
+			int y = 720 - ((stage_height_num - i) * BOX_SIZE);
+			Vector2D pos(x, y);
 
-	// ステージデータに基づいてオブジェクトを生成
-	for (int i = 0; i < stage_height_num; i++) {
-		for (int j = 0; j < stage_width_num; j++) {
-			// ブロックのY座標を計算	
-			int y = 720 - ((stage_height_num - 1 - i) * BOX_SIZE);
-
-			switch (stage_data[i][j])
-			{
-			case EMPTY:
-				break;  // 空の場合は何もしない
-			case BLOCK:
-				// ブロックを生成
-				CreateObject<Block>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
-				break;
-			case PLAYER:
-				// プレイヤーを生成
-				CreateObject<Player>(Vector2D(j * BOX_SIZE, y), Vector2D(48.0f, 96.0f));
-				break;
-				// case ENEMY:
-					// ここでエネミーを生成することも可能（コメントアウトされています）
-			case HEAL:
-				CreateObject<HealItem>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
-				break;
-			case INVINCIBLE:
-				CreateObject<InvincibleItem>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
-				break;
-			case TRAP:
-				CreateObject<Trap>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
-				break;
-			case MOVE_BLOCK:
-				CreateObject<MoveBlock>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE, 24.0f));
-				break;
-			case GOAL:
-				// ゴールポイントを生成
-				CreateObject<GoalPoint>(Vector2D(j * BOX_SIZE, y), Vector2D((float)BOX_SIZE));
-				break;
-			default:
-				break; 
+			switch (stage_data[i][j]) {
+			case EMPTY: break;
+			case BLOCK: CreateObject<Block>(pos, Vector2D((float)BOX_SIZE)); break;
+			case PLAYER: CreateObject<Player>(pos, Vector2D(48.0f, 96.0f)); break;
+			case MOVE_BLOCK: CreateObject<MoveBlock>(pos, Vector2D((float)BOX_SIZE, 24.0f)); break;
+			case GOAL: CreateObject<GoalPoint>(pos, Vector2D((float)BOX_SIZE)); break;
+			default: break;
 			}
 		}
 	}
 
-
-	//クローン（過去のプレイヤー）を生成
+	CreateItem();
+	CreateGimmick();
 	CreateClone();
-
 }
+
 
 void GameMainScene::UpdateCamera()
 {
@@ -187,7 +168,7 @@ void GameMainScene::UpdateCamera()
 void GameMainScene::StageClear()
 {
 	//プレイヤーを取得
-	Player* p = dynamic_cast<Player*>(player);
+	Player* p = static_cast<Player*>(player);
 
 	if (p){
 		// プレイヤーの移動履歴を保存
@@ -203,6 +184,7 @@ void GameMainScene::ReLoadStage()
 		delete obj;
 		obj = nullptr;
 	}
+	player = nullptr;
 	objects.clear();
 	stage_reload = false;
 	LoadStage();
@@ -238,6 +220,96 @@ void GameMainScene::CreateClone()
 
 		// 履歴をエネミーにセット
 		enemy->SetReplayHistory(history);
+	}
+}
+
+// アイテムを生成する関数
+void GameMainScene::CreateItem()
+{
+	std::vector<Vector2D> item_positions;
+
+	// ステージ上のブロックの上に空間がある場所を探して、アイテムの候補位置を取得
+	for (int i = 1; i < stage_height_num; ++i) {
+		for (int j = 0; j < stage_width_num; ++j) {
+			// ブロック以外はスキップ
+			if (stage_data[i][j] != BLOCK) continue;
+			// ブロックの下が空白ならスキップ（浮いているブロックはNG）
+			if (i + 1 >= stage_height_num || stage_data[i + 1][j] == EMPTY) continue;
+			// ブロックの上に空きがない or トラップがあるならスキップ
+			if (stage_data[i - 1][j] != EMPTY || stage_data[i][j] == TRAP) continue;
+
+			// 画面上の座標に変換して保存
+			int x = j * BOX_SIZE;
+			int y = 720 - ((stage_height_num - i) * BOX_SIZE) - BOX_SIZE;
+			item_positions.emplace_back(x, y);
+		}
+	}
+
+	// 候補位置をシャッフル
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::shuffle(item_positions.begin(), item_positions.end(), gen);
+
+	// 最大3個までアイテムを生成
+	int item_count = Min(3, static_cast<int>(item_positions.size()));
+	for (int i = 0; i < item_count; ++i) {
+		const Vector2D& pos = item_positions[i];
+
+		// ステージのグリッド位置を計算
+		int grid_x = pos.x / BOX_SIZE;
+		int grid_y = (720 - pos.y - BOX_SIZE) / BOX_SIZE;
+
+		// 偶数番目は無敵アイテム、奇数番目は回復アイテム
+		if (i % 2 == 0) {
+			CreateObject<InvincibleItem>(pos, Vector2D((float)BOX_SIZE));
+			stage_data[grid_y][grid_x] = INVINCIBLE;
+		}
+		else {
+			CreateObject<HealItem>(pos, Vector2D((float)BOX_SIZE));
+			stage_data[grid_y][grid_x] = HEAL;
+		}
+	}
+}
+
+// ギミック（トラップ）を生成する関数
+void GameMainScene::CreateGimmick()
+{
+	std::vector<Vector2D> trap_pos;
+
+	// ブロックの上に空きがあり、かつアイテムが置かれていない位置を探す
+	for (int i = 1; i < stage_height_num - 1; i++) {
+		for (int j = 0; j < stage_width_num; j++) {
+
+			// ブロックであるかをチェック
+			if (stage_data[i][j] == BLOCK) {
+
+				// 上のマスが空白、かつその場所にアイテムがないことを確認
+				if (stage_data[i - 1][j] == EMPTY &&
+					stage_data[i][j] != HEAL &&
+					stage_data[i][j] != INVINCIBLE)
+				{
+					// 上のマスにアイテムがある場合はスキップ
+					if (stage_data[i - 1][j] == HEAL || stage_data[i - 1][j] == INVINCIBLE) continue;
+
+					// トラップの描画位置を計算
+					int block_y = 720 - ((stage_height_num - i) * BOX_SIZE);
+					int y = block_y - BOX_SIZE;
+
+					trap_pos.push_back(Vector2D(j * BOX_SIZE, y));
+				}
+			}
+		}
+	}
+
+	// トラップ候補をシャッフル
+	std::random_device rand;
+	std::mt19937 gen(rand());
+	std::shuffle(trap_pos.begin(), trap_pos.end(), gen);
+
+	// 最大5個までランダムにトラップを生成
+	const int trap_count = Min(5, (int)trap_pos.size());
+	for (int i = 0; i < trap_count; i++) {
+		CreateObject<Trap>(trap_pos[i], Vector2D((float)BOX_SIZE));
 	}
 }
 

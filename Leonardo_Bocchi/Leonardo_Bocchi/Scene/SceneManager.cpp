@@ -1,6 +1,7 @@
 #include "DxLib.h"
 #include "SceneManager.h"
 #include "GameScene/GameMainScene.h"
+#include "GameScene/TitleScene.h"
 
 
 SceneManager::SceneManager() :current_scene(nullptr)
@@ -71,7 +72,7 @@ SceneBase* SceneManager::CreateScene(eSceneType type)
 	switch (type)
 	{
 	case eSceneType::TITLE:
-		//return dynamic_cast<SceneBase*>(new TitleScene());
+		return dynamic_cast<SceneBase*>(new TitleScene());
 	case eSceneType::GAME_MAIN:
 		return dynamic_cast<SceneBase*>(new GameMainScene());
 	case eSceneType::RESULT:

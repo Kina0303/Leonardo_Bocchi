@@ -23,7 +23,7 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 
 	damage_timer = 0;
 
-	image = LoadGraph("Resource/Images/player.png");
+	image = LoadGraph("Resource/Images/Character/Player/player.png");
 
 	//image = animation_data[0];
 	//image = NULL;
