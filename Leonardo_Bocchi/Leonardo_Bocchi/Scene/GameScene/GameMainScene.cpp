@@ -7,7 +7,7 @@
 #include <iostream>
 #include <random>
 
-GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr), back_ground_image(0),clone_spawn_timer(0.0f),is_create(false)
+GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr), back_ground_image(0),clone_spawn_timer(0.0f),is_create(false),is_game_over(false),fade_alpha(0)
 {
 }
 
@@ -65,14 +65,29 @@ eSceneType GameMainScene::Update()
 		}
 	}
 
-
-
-
+	//志望処理
 	if (player->GetHp() <= 0 || player->GetLocation().y > 850.0f)
 	{
 		player->SetDelete();
-		return eSceneType::RESULT;
+		is_game_over = true;
 	}
+
+
+	if (is_game_over)
+	{
+		if (fade_alpha < 200)
+		{
+			fade_alpha += 5;
+		}
+		InputControl* input = InputControl::GetInstance();
+
+		if (input->GetButtonDown(XINPUT_BUTTON_A))
+		{
+			is_game_over = false;
+			return eSceneType::RESULT;
+		}
+	}
+
 
 	return __super::Update();
 }
@@ -89,10 +104,43 @@ void GameMainScene::Draw() const
 	//{
 	//	DrawGraph(0, 0, back_ground_img[i], TRUE); // 背景画像を読み込む
 	//}
-
 	DrawFormatString(10, 70, GetColor(255, 255, 255), "LOOP : %d\n", clear_count);
 
 	__super::Draw();
+
+	InputControl* input = InputControl::GetInstance();
+	if (input->GetKey(KEY_INPUT_0)) {
+		for (int i = 0; i < stage_height_num; ++i)
+		{
+			for (int j = 0; j < stage_width_num; ++j)
+			{
+				DrawFormatString(j * 48, i * 48, GetColor(255, 255, 255), "%d", stage_data[i][j]);
+			}
+		}
+	}
+
+
+	// ゲームオーバー中なら文字を描画
+	if (is_game_over)
+	{
+		// 半透明の黒い背景
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, fade_alpha);
+		DrawBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GetColor(0, 0, 0), TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+
+		SetFontSize(48);
+		// ゲームオーバー文字
+		const char* msg = "GAME OVER";
+		int text_width = GetDrawStringWidth(msg, strlen(msg));
+		DrawString((SCREEN_WIDTH - text_width) / 2, SCREEN_HEIGHT / 2 - 50, msg, GetColor(255, 0, 0));
+
+
+		SetFontSize(24);
+		const char* hint = "Press A to continue";
+		int hint_width = GetDrawStringWidth(hint, strlen(hint));
+		DrawString((SCREEN_WIDTH - hint_width) / 2, SCREEN_HEIGHT / 2 + 90, hint, GetColor(255, 255, 255));
+	}
 
 }
 
@@ -166,7 +214,9 @@ void GameMainScene::SetStage()
 			case EMPTY: break;
 			case BLOCK: CreateObject<Block>(pos, Vector2D((float)BOX_SIZE)); break;
 			case PLAYER: CreateObject<Player>(pos, Vector2D(48.0f, 96.0f)); break;
-			case MOVE_BLOCK: CreateObject<MoveBlock>(pos, Vector2D((float)BOX_SIZE, 24.0f)); break;
+			case MOVE_BLOCK: CreateObject<MoveBlock>(pos, Vector2D((float)BOX_SIZE, 24.0f)); 
+				goal_pos = pos;
+				break;
 			case GOAL: CreateObject<GoalPoint>(pos, Vector2D((float)BOX_SIZE * 2)); break;
 			default: break;
 			}
@@ -252,29 +302,27 @@ void GameMainScene::CreateClone()
 	}
 }
 
-// アイテムを生成する関数
 void GameMainScene::CreateItem()
 {
 	std::vector<Vector2D> item_positions;
 
-	// ステージ上のブロックの上に空間がある場所を探して、アイテムの候補位置を取得
-	for (int i = 1; i < stage_height_num; ++i) {
+	// アイテムを置く候補位置を探す（空＋その下がブロック）
+	for (int i = 0; i < stage_height_num - 1; ++i) {
 		for (int j = 0; j < stage_width_num; ++j) {
-			// ブロック以外はスキップ
-			if (stage_data[i][j] != BLOCK) continue;
-			// ブロックの下が空白ならスキップ（浮いているブロックはNG）
-			if (i + 1 >= stage_height_num || stage_data[i + 1][j] == EMPTY) continue;
-			// ブロックの上に空きがない or トラップがあるならスキップ
-			if (stage_data[i - 1][j] != EMPTY || stage_data[i][j] == TRAP) continue;
+			if (stage_data[i][j] != EMPTY) continue;
+			if (stage_data[i + 1][j] != BLOCK) continue;
 
-			// 画面上の座標に変換して保存
 			int x = j * BOX_SIZE;
-			int y = 720 - ((stage_height_num - i) * BOX_SIZE) - BOX_SIZE;
-			item_positions.emplace_back(x, y);
+			int y = 720 - ((stage_height_num - i) * BOX_SIZE);
+
+			// プレイヤーがすぐ見えない位置かつゴール前
+			if (x > (SCREEN_WIDTH - 280) && x < goal_pos.x) {
+				item_positions.emplace_back(x, y);
+			}
 		}
 	}
 
-	// 候補位置をシャッフル
+	// 候補をシャッフル
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::shuffle(item_positions.begin(), item_positions.end(), gen);
@@ -284,11 +332,9 @@ void GameMainScene::CreateItem()
 	for (int i = 0; i < item_count; ++i) {
 		const Vector2D& pos = item_positions[i];
 
-		// ステージのグリッド位置を計算
 		int grid_x = pos.x / BOX_SIZE;
-		int grid_y = (720 - pos.y - BOX_SIZE) / BOX_SIZE;
+		int grid_y = stage_height_num - ((720 - pos.y) / BOX_SIZE);
 
-		// 偶数番目は無敵アイテム、奇数番目は回復アイテム
 		if (i % 2 == 0) {
 			CreateObject<InvincibleItem>(pos, Vector2D((float)BOX_SIZE));
 			stage_data[grid_y][grid_x] = INVINCIBLE;
@@ -300,46 +346,45 @@ void GameMainScene::CreateItem()
 	}
 }
 
-// ギミック（トラップ）を生成する関数
+
 void GameMainScene::CreateGimmick()
 {
-	std::vector<Vector2D> trap_pos;
+	std::vector<Vector2D> trap_positions;
 
-	// ブロックの上に空きがあり、かつアイテムが置かれていない位置を探す
-	for (int i = 1; i < stage_height_num - 1; i++) {
-		for (int j = 0; j < stage_width_num; j++) {
+	// トラップを置く候補位置を探す（空＋その下がブロック）
+	for (int i = 0; i < stage_height_num - 1; ++i) {
+		for (int j = 0; j < stage_width_num; ++j) {
+			if (stage_data[i][j] != EMPTY) continue;
+			if (stage_data[i + 1][j] != BLOCK) continue;
 
-			// ブロックであるかをチェック
-			if (stage_data[i][j] == BLOCK) {
+			// このマスにアイテムがあればスキップ（かぶり防止）
+			if (stage_data[i][j] == HEAL || stage_data[i][j] == INVINCIBLE) continue;
 
-				// 上のマスが空白、かつその場所にアイテムがないことを確認
-				if (stage_data[i - 1][j] == EMPTY &&
-					stage_data[i][j] != HEAL &&
-					stage_data[i][j] != INVINCIBLE)
-				{
-					// 上のマスにアイテムがある場合はスキップ
-					if (stage_data[i - 1][j] == HEAL || stage_data[i - 1][j] == INVINCIBLE) continue;
+			int x = j * BOX_SIZE;
+			int y = 720 - ((stage_height_num - i) * BOX_SIZE); // ← CreateItemと同じ
 
-					// トラップの描画位置を計算
-					int block_y = 720 - ((stage_height_num - i) * BOX_SIZE);
-					int y = block_y - BOX_SIZE;
-
-					trap_pos.push_back(Vector2D(j * BOX_SIZE, y));
-				}
+			// ゴール前の画面右端エリア
+			if (x > (SCREEN_WIDTH - 280) && x < goal_pos.x) {
+				trap_positions.emplace_back(x, y);
 			}
 		}
 	}
 
-	// トラップ候補をシャッフル
-	std::random_device rand;
-	std::mt19937 gen(rand());
-	std::shuffle(trap_pos.begin(), trap_pos.end(), gen);
+	// 候補をシャッフル
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::shuffle(trap_positions.begin(), trap_positions.end(), gen);
 
-	// 最大5個までランダムにトラップを生成
-	const int trap_count = Min(5, (int)trap_pos.size());
-	for (int i = 0; i < trap_count; i++) {
-		CreateObject<Trap>(trap_pos[i], Vector2D((float)BOX_SIZE));
+	// 最大5個までトラップを生成
+	const int trap_count = Min(5, static_cast<int>(trap_positions.size()));
+	for (int i = 0; i < trap_count; ++i) {
+		const Vector2D& pos = trap_positions[i];
+
+		int grid_x = pos.x / BOX_SIZE;
+		int grid_y = stage_height_num - ((720 - pos.y) / BOX_SIZE);
+
+		CreateObject<Trap>(pos, Vector2D((float)BOX_SIZE));
+		stage_data[grid_y][grid_x] = TRAP;
 	}
 }
-
 

@@ -16,6 +16,7 @@ private:
 	int stage_data[STAGE_MAX_HEIGHT][STAGE_MAX_WIDTH];
 
 	GameObject* player;	//プレイヤーのポインタ
+	Vector2D goal_pos;
 
 	std::vector<std::vector<MoveRecord>>stage_clear_history; //ステージクリア履歴
 
@@ -25,6 +26,8 @@ private:
 	float clone_spawn_timer;
 	bool is_create;
 
+	bool is_game_over;         // ゲームオーバー状態かどうか
+	int fade_alpha;
 
 public:
 	GameMainScene();
