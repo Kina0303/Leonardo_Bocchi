@@ -23,3 +23,8 @@ void GoalPoint::Draw(Vector2D offset, double rate) const
 void GoalPoint::Finalize()
 {
 }
+
+void GoalPoint::OnHitCollision(GameObject* hit_object)
+{
+
+}

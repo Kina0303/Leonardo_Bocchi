@@ -13,5 +13,7 @@ public:
     void Draw(Vector2D offset, double rate) const override;
     //I—¹ˆ—
     void Finalize()override;
+
+    void OnHitCollision(GameObject* hit_object)override;
 };
 

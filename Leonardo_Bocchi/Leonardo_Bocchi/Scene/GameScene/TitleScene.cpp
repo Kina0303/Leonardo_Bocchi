@@ -37,5 +37,5 @@ void TitleScene::Finalize()
 
 eSceneType TitleScene::GetNowSceneType() const
 {
-	return eSceneType();
+	return eSceneType::TITLE;
 }

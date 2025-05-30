@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 #include "GameScene/GameMainScene.h"
 #include "GameScene/TitleScene.h"
+#include "GameScene/ResultScene.h"
 
 
 SceneManager::SceneManager() :current_scene(nullptr)
@@ -76,7 +77,7 @@ SceneBase* SceneManager::CreateScene(eSceneType type)
 	case eSceneType::GAME_MAIN:
 		return dynamic_cast<SceneBase*>(new GameMainScene());
 	case eSceneType::RESULT:
-		//return dynamic_cast<SceneBase*>(new ResultScene());
+		return dynamic_cast<SceneBase*>(new ResultScene());
 	default:
 		return nullptr;
 	}

@@ -5,6 +5,8 @@ void HealItem::Initialize(Vector2D _location, Vector2D _box_size)
 {
 	__super::Initialize(_location, _box_size);
 	object_type = HEAL;
+
+	image = LoadGraph("Resource/Images/Items/heal01.png");
 }
 
 void HealItem::Update()
@@ -13,7 +15,8 @@ void HealItem::Update()
 
 void HealItem::Draw(Vector2D offset, double rate) const
 {
-	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 255, 255), TRUE);
+	__super::Draw(offset, 2.0f);
+	//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 255, 255), TRUE);
 }
 
 void HealItem::Finalize()

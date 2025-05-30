@@ -158,3 +158,15 @@ void Vector2D::ToInt(int* x, int* y) const
     *x = static_cast<int>(this->x);
     *y = static_cast<int>(this->y);
 }
+
+float Vector2D::Length() const
+{
+    return std::sqrt(x * x + y * y);
+}
+
+Vector2D Vector2D::Normalize() const
+{
+    float len = Length();
+    if (len < 1e-6f) return Vector2D(0.0f);
+    return *this / len;
+}

@@ -10,6 +10,12 @@ private:
     std::vector<MoveRecord> replay_history;
     int current_frame = 0;
 
+    int frame_timer = 0;            // 経過フレーム数
+    int frame_duration = 1;         // 何フレームかけて1ステップ進むか
+
+
+    Vector2D start_position;
+    Vector2D end_position;
 public:
     Enemy();
     ~Enemy();

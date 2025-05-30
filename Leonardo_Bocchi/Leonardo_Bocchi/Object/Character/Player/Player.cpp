@@ -74,8 +74,22 @@ void Player::Update()
 
 void Player::Draw(Vector2D offset, double rate) const
 {
-	__super::Draw(offset, 1.5);
+	//__super::Draw(offset, 1.5);
 	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
+
+	// 無敵時間中は点滅させる
+	bool is_draw = true;
+	if (damage_timer)
+	{
+		// 10フレームおきに表示/非表示を切り替える（点滅）
+		is_draw = (damage_timer / 10) % 2 == 0;
+	}
+
+	if (is_draw)
+	{
+		__super::Draw(offset, 1.5);
+	}
+
 
 #ifdef _DEBUG
 	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP × %d", hp);

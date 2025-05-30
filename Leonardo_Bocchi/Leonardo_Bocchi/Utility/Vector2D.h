@@ -51,5 +51,9 @@ public:
 
 	//®”Œ^‚É•ÏŠ·
 	void ToInt(int* x, int* y)const;
+
+	float Length()const;
+
+	Vector2D Normalize()const;
 };
 

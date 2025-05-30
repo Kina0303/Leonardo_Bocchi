@@ -20,6 +20,10 @@ private:
 	std::vector<std::vector<MoveRecord>>stage_clear_history; //ステージクリア履歴
 
 	int back_ground_image; //背景画像
+	int back_ground_img[5];
+
+	float clone_spawn_timer;
+	bool is_create;
 
 
 public:
@@ -59,5 +63,6 @@ public:
 
 	//ギミックの生成
 	void CreateGimmick();
+
 };
 

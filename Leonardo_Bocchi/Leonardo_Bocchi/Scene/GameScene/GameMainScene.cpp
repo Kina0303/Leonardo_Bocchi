@@ -7,7 +7,7 @@
 #include <iostream>
 #include <random>
 
-GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr), back_ground_image(0)
+GameMainScene::GameMainScene() :stage_width_num(0), stage_height_num(0), stage_data{ 0 }, player(nullptr), back_ground_image(0),clone_spawn_timer(0.0f),is_create(false)
 {
 }
 
@@ -24,6 +24,12 @@ void GameMainScene::Initialize()
 	camera_location = Vector2D(0.0f, 0.0f); //カメラの初期位置を設定
 
 	back_ground_image = LoadGraph("Resource/Images/back_ground.png"); // 背景画像を読み込む
+
+	//back_ground_img[0] = LoadGraph("Resource/Images/back_ground/Night/1.png"); // 背景画像を読み込む
+	//back_ground_img[1] = LoadGraph("Resource/Images/back_ground/Night/2.png"); // 背景画像を読み込む
+	//back_ground_img[2] = LoadGraph("Resource/Images/back_ground/Night/3.png"); // 背景画像を読み込む
+	//back_ground_img[3] = LoadGraph("Resource/Images/back_ground/Night/4.png"); // 背景画像を読み込む
+	//back_ground_img[4] = LoadGraph("Resource/Images/back_ground/Night/5.png"); // 背景画像を読み込む
 
 }
 
@@ -47,6 +53,27 @@ eSceneType GameMainScene::Update()
 		FindPlayer();
 	}
 
+
+	if (!is_create)
+	{
+		clone_spawn_timer++;
+		if (clone_spawn_timer >= 45)
+		{
+			CreateClone();
+			clone_spawn_timer = 0;
+			is_create = true;
+		}
+	}
+
+
+
+
+	if (player->GetHp() <= 0 || player->GetLocation().y > 850.0f)
+	{
+		player->SetDelete();
+		return eSceneType::RESULT;
+	}
+
 	return __super::Update();
 }
 
@@ -57,6 +84,11 @@ void GameMainScene::Draw() const
 	DrawGraph(0, 0, back_ground_image, TRUE); // 背景画像を読み込む
 	//DrawFormatString(10, 10, GetColor(255, 255, 255), "メイン画面");
 	//DrawFormatString(10, 40, GetColor(255, 255, 255), "ステージサイズ：幅 = %d      高さ = %d\n", stage_width_num, stage_height_num);
+
+	//for (int i = 0; i < 5; i++)
+	//{
+	//	DrawGraph(0, 0, back_ground_img[i], TRUE); // 背景画像を読み込む
+	//}
 
 	DrawFormatString(10, 70, GetColor(255, 255, 255), "LOOP : %d\n", clear_count);
 
@@ -135,7 +167,7 @@ void GameMainScene::SetStage()
 			case BLOCK: CreateObject<Block>(pos, Vector2D((float)BOX_SIZE)); break;
 			case PLAYER: CreateObject<Player>(pos, Vector2D(48.0f, 96.0f)); break;
 			case MOVE_BLOCK: CreateObject<MoveBlock>(pos, Vector2D((float)BOX_SIZE, 24.0f)); break;
-			case GOAL: CreateObject<GoalPoint>(pos, Vector2D((float)BOX_SIZE)); break;
+			case GOAL: CreateObject<GoalPoint>(pos, Vector2D((float)BOX_SIZE * 2)); break;
 			default: break;
 			}
 		}
@@ -143,7 +175,9 @@ void GameMainScene::SetStage()
 
 	CreateItem();
 	CreateGimmick();
-	CreateClone();
+
+
+	//CreateClone();
 }
 
 
@@ -187,6 +221,7 @@ void GameMainScene::ReLoadStage()
 	player = nullptr;
 	objects.clear();
 	stage_reload = false;
+	is_create = false;
 	LoadStage();
 
 }
@@ -202,12 +237,6 @@ void GameMainScene::FindPlayer()
 			break;
 		}
 	}
-
-	if (player->GetHp() <= 0)
-	{
-		player->SetDelete();
-		ReLoadStage();
-	}
 }
 
 void GameMainScene::CreateClone()
@@ -216,7 +245,7 @@ void GameMainScene::CreateClone()
 	for (const auto& history : stage_clear_history)
 	{
 		//新しいエネミー（過去のプレイヤー）を生成
-		Enemy* enemy = CreateObject<Enemy>(Vector2D(0.0f, 0.0f) , Vector2D(64.0f, 96.0f));
+		Enemy* enemy = CreateObject<Enemy>(Vector2D(0.0f, 0.0f) , Vector2D(48.0f, 96.0f));
 
 		// 履歴をエネミーにセット
 		enemy->SetReplayHistory(history);
@@ -312,4 +341,5 @@ void GameMainScene::CreateGimmick()
 		CreateObject<Trap>(trap_pos[i], Vector2D((float)BOX_SIZE));
 	}
 }
+
 
