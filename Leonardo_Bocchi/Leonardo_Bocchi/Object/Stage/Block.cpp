@@ -6,6 +6,8 @@ void Block::Initialize(Vector2D _location, Vector2D _box_size)
 	__super::Initialize(_location, _box_size);
 
 	object_type = BLOCK;
+
+    image = LoadGraph("Resource/Images/Block/block.png");
 }
 
 void Block::Update()
@@ -14,8 +16,8 @@ void Block::Update()
 
 void Block::Draw(Vector2D offset, double rate) const
 {
-	//__super::Draw(offset, 1.0);
-	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
+	__super::Draw(offset, 1.5);
+	//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
 	//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), TRUE);
 	//DrawBoxAA(location.x, location.y, location.x + box_size.x, location.y + box_size.y, GetColor(0, 0, 0), TRUE);
 	//DrawBoxAA(location.x, location.y, location.x + box_size.x, location.y + box_size.y, GetColor(255, 255, 255), FALSE);

@@ -75,7 +75,7 @@ void Player::Update()
 void Player::Draw(Vector2D offset, double rate) const
 {
 	//__super::Draw(offset, 1.5);
-	DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
+	//DrawBoxAA(offset.x, offset.y, offset.x + box_size.x, offset.y + box_size.y, GetColor(255, 0, 0), FALSE);
 
 	// –³“GŽžŠÔ’†‚Í“_–Å‚³‚¹‚é
 	bool is_draw = true;

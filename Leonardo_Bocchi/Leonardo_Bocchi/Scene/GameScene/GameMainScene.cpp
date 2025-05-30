@@ -226,8 +226,6 @@ void GameMainScene::SetStage()
 	CreateItem();
 	CreateGimmick();
 
-
-	//CreateClone();
 }
 
 
@@ -376,7 +374,7 @@ void GameMainScene::CreateGimmick()
 	std::shuffle(trap_positions.begin(), trap_positions.end(), gen);
 
 	// Å‘å5ŒÂ‚Ü‚Åƒgƒ‰ƒbƒv‚ğ¶¬
-	const int trap_count = Min(5, static_cast<int>(trap_positions.size()));
+	const int trap_count = Min(3, static_cast<int>(trap_positions.size()));
 	for (int i = 0; i < trap_count; ++i) {
 		const Vector2D& pos = trap_positions[i];
 

@@ -64,6 +64,9 @@ public:
 public:
 	bool IsStageReload() const { return stage_reload; }
 	void SetStageReload(bool flg) { stage_reload = flg; }
+
+	void SetClearCount(int count) { clear_count = count; }
+	int GetClearCount()const { return clear_count; }
 };
 
 

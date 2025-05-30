@@ -16,7 +16,7 @@ SceneManager::~SceneManager()
 
 void SceneManager::Initialize()
 {
-	ChangeScene(eSceneType::GAME_MAIN);
+	ChangeScene(eSceneType::TITLE);
 }
 
 void SceneManager::Update()
@@ -58,6 +58,8 @@ void SceneManager::ChangeScene(eSceneType type)
 	//Œ»Ý‚ÌƒV[ƒ“‚ÌI—¹ˆ—
 	if (current_scene != nullptr)
 	{
+		new_scene->SetClearCount(current_scene->GetClearCount());
+
 		current_scene->Finalize();
 		delete current_scene;
 	}
