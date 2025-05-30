@@ -89,10 +89,10 @@ void Player::Draw(Vector2D offset, double rate) const
 	{
 		__super::Draw(offset, 1.5);
 	}
-
+	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP Å~ %d", hp);
 
 #ifdef _DEBUG
-	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP Å~ %d", hp);
+	//DrawFormatString(10, 120, GetColor(255, 255, 255), "HP Å~ %d", hp);
 	DrawFormatString(10, 100, GetColor(255, 255, 255), "%f     %f", velocity.x, velocity.y);
 	DrawFormatString(10, 80, GetColor(255, 255, 255), "%d", jump_time);
 	DrawFormatString(10, 60, GetColor(255, 255, 255), "invicible :%d", is_invincible);

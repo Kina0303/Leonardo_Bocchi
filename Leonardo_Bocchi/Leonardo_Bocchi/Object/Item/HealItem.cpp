@@ -7,6 +7,7 @@ void HealItem::Initialize(Vector2D _location, Vector2D _box_size)
 	object_type = HEAL;
 
 	image = LoadGraph("Resource/Images/Items/heal01.png");
+	//image = LoadGraph("Resource/Images/Items/heart.png");
 }
 
 void HealItem::Update()

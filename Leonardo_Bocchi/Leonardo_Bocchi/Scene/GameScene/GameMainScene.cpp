@@ -104,9 +104,12 @@ void GameMainScene::Draw() const
 	//{
 	//	DrawGraph(0, 0, back_ground_img[i], TRUE); // ”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ
 	//}
-	DrawFormatString(10, 70, GetColor(255, 255, 255), "LOOP : %d\n", clear_count);
 
 	__super::Draw();
+
+	DrawFormatString(10, 70, GetColor(255, 255, 255), "LOOP : %d\n", clear_count);
+
+
 
 	InputControl* input = InputControl::GetInstance();
 	if (input->GetKey(KEY_INPUT_0)) {
@@ -214,10 +217,10 @@ void GameMainScene::SetStage()
 			case EMPTY: break;
 			case BLOCK: CreateObject<Block>(pos, Vector2D((float)BOX_SIZE)); break;
 			case PLAYER: CreateObject<Player>(pos, Vector2D(48.0f, 96.0f)); break;
-			case MOVE_BLOCK: CreateObject<MoveBlock>(pos, Vector2D((float)BOX_SIZE, 24.0f)); 
+			case MOVE_BLOCK: CreateObject<MoveBlock>(pos, Vector2D((float)BOX_SIZE, 24.0f)); break;
+			case GOAL: CreateObject<GoalPoint>(pos, Vector2D((float)BOX_SIZE * 2)); 
 				goal_pos = pos;
 				break;
-			case GOAL: CreateObject<GoalPoint>(pos, Vector2D((float)BOX_SIZE * 2)); break;
 			default: break;
 			}
 		}
