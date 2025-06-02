@@ -2,7 +2,7 @@
 #include "Player.h"
 #include "../../../Utility/UtilityList.h"
 
-Player::Player() : animation_data(),damage_timer(),is_invincible(false),invincible_timer(0)
+Player::Player() : animation_data(), damage_timer(), is_invincible(false), invincible_timer(0)
 {
 }
 
@@ -23,10 +23,20 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 
 	damage_timer = 0;
 
-	image = LoadGraph("Resource/Images/Character/Player/player.png");
+	//image = LoadGraph("Resource/Images/Character/Player/player.png");
 
 	//image = animation_data[0];
 	//image = NULL;
+	ResourceManager* rm = ResourceManager::GetInstance();
+
+	//IDLE状態
+	animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/Player.png")[0]);
+
+	//MOVE状態
+	animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/PlayerMove01.png")[0]);
+	animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/PlayerMove02.png")[0]);
+
+	image = animation_data[0];
 
 	animation_count = 0;
 	jump_count = 1;
@@ -34,8 +44,6 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 
 void Player::Update()
 {
-	__super::Update();
-
 	//移動処理
 	HandleInput();
 
@@ -69,7 +77,8 @@ void Player::Update()
 	location += velocity;
 
 	//アニメーション管理
-	//AnimationControl();
+	AnimationControl();
+	__super::Update();
 }
 
 void Player::Draw(Vector2D offset, double rate) const
@@ -87,6 +96,7 @@ void Player::Draw(Vector2D offset, double rate) const
 
 	if (is_draw)
 	{
+		offset.y += 2.0f;
 		__super::Draw(offset, 1.5);
 	}
 	DrawFormatString(10, 120, GetColor(255, 255, 255), "HP × %d", hp);
@@ -100,20 +110,23 @@ void Player::Draw(Vector2D offset, double rate) const
 	switch (action_state)
 	{
 	case Player::ActionState::IDLE:
-		DrawFormatString(10, 140, GetColor(255, 255, 255), "State IDLE");
+		DrawFormatString(10, 140, GetColor(255, 255, 255), "State: IDLE");
+		break;
+	case Player::ActionState::WALK:
+		DrawFormatString(10, 140, GetColor(255, 255, 255), "State: WALK");
 		break;
 	case Player::ActionState::JUMP:
-		DrawFormatString(10, 160, GetColor(255, 255, 255), "State JUMP");
+		DrawFormatString(10, 140, GetColor(255, 255, 255), "State: JUMP");
 		break;
 	case Player::ActionState::DAMAGE:
-		DrawFormatString(10, 180, GetColor(255, 255, 255), "State DAMEGE");
-		break;
-	default:
+		DrawFormatString(10, 140, GetColor(255, 255, 255), "State: DAMAGE");
 		break;
 	}
+
+	DrawFormatString(10, 160, GetColor(255, 255, 255), "%d", on_ground);
 #endif // DEBUG
 
-	
+
 }
 void Player::Finalize()
 {
@@ -141,71 +154,93 @@ void Player::HandleInput()
 {
 	InputControl* input = InputControl::GetInstance();
 
-	// 移動入力
-	if (input->GetButton(XINPUT_BUTTON_DPAD_LEFT)) {
+	ActionState next_state = action_state;
+
+	// 左右移動入力
+	if (input->GetButton(XINPUT_BUTTON_DPAD_LEFT))
+	{
 		move = MoveDirection::LEFT;
-		velocity.x -= 3.0f;
+		velocity.x -= 0.5f;
 		flip_flg = true;
+		if (on_ground) next_state = ActionState::WALK;
 	}
 	else if (input->GetButton(XINPUT_BUTTON_DPAD_RIGHT))
 	{
 		move = MoveDirection::RIGHT;
 		velocity.x += 0.5f;
-		//velocity.x += 3.0f;
 		flip_flg = false;
+		if (on_ground) next_state = ActionState::WALK;
 	}
 	else
 	{
 		move = MoveDirection::NONE;
 		ApplyDeceleration();
+		if (on_ground) next_state = ActionState::IDLE;
 	}
 
-	//ジャンプ入力
-	if (input->GetButtonDown(XINPUT_BUTTON_A) && jump_count < 2)
+	// ジャンプ開始（ジャンプキー押下時 & 地面にいるとき）
+	if (input->GetButtonDown(XINPUT_BUTTON_A) && on_ground)
 	{
+		velocity.y = -4.0f;  // 初速
 		jump_time = 0;
-		jump_count++;
-		on_ground = false;
-		action_state = ActionState::JUMP;
+		on_ground = false;  // ジャンプ直後は空中扱い
+		next_state = ActionState::JUMP;
 	}
 
-	if (input->GetButton(XINPUT_BUTTON_A) && jump_count < 1 && jump_time <= 20)
+	// 長押しでジャンプ延長
+	if (input->GetButton(XINPUT_BUTTON_A) &&
+		action_state == ActionState::JUMP &&
+		jump_time < 20)
 	{
 		jump_time++;
-		if (jump_count == 0) {
-			velocity.y = Max<float>(-9.0f, -4.0f - (float)jump_time * 0.08f);
-
-		}
+		velocity.y -= 0.25f;  // 上昇を追加
+		velocity.y = Max(velocity.y, -9.0f); // 上昇制限
 	}
 
-	// 状態更新
-	if (action_state != ActionState::DAMAGE) {
-		if ((velocity.x == 0.0f || velocity.y == 0.0f) && on_ground)
-			action_state = ActionState::IDLE;
+	// 着地チェック → Updateの後に on_ground = true にされる前提
+	if (on_ground && action_state == ActionState::JUMP)
+	{
+		next_state = (Abs(velocity.x) > 0.1f) ? ActionState::WALK : ActionState::IDLE;
 	}
+
+	// ダメージ中は状態遷移しない
+	if (action_state != ActionState::DAMAGE)
+		action_state = next_state;
 }
+
+
 
 void Player::AnimationControl()
 {
-	//カウントの更新
-	animation_count++;
+	static int frame = 0;
+	frame++;
 
-	//
-	if (animation_count >= 10)
+	switch (action_state)
 	{
-		//カウントを0クリアする
-		animation_count = 0;
-		//画像の切替を行う
-		if (image == animation_data[0])
-		{
+	case Player::ActionState::IDLE:
+		image = animation_data[0];
+		break;
+
+	case Player::ActionState::WALK:
+		if (frame % 20 < 10)
 			image = animation_data[1];
-		}
 		else
-		{
-			image = animation_data[0];
-		}
+			image = animation_data[2];
+		break;
+
+	case Player::ActionState::JUMP:
+		image = animation_data[1]; 
+		break;
+
+	case Player::ActionState::DAMAGE:
+		image = animation_data[0]; 
+		break;
+
+	default:
+		break;
 	}
 }
+
 
 void Player::OnHitCollision(GameObject* hit_object)
 {
@@ -253,6 +288,5 @@ void Player::ApplyDamage()
 {
 	damage_flg = true;
 	hp--;
-	
-}
 
+}

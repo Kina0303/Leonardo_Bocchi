@@ -18,7 +18,7 @@ private:
     int damage_timer;
 
     //èÛë‘ä«óù
-    enum class ActionState { IDLE, JUMP, DAMAGE };
+    enum class ActionState { IDLE, WALK, JUMP, DAMAGE };
     enum class MoveDirection { NONE, LEFT, RIGHT };
 
     ActionState action_state = ActionState::IDLE;

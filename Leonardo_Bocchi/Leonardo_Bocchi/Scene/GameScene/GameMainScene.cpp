@@ -88,7 +88,6 @@ eSceneType GameMainScene::Update()
 		}
 	}
 
-
 	return __super::Update();
 }
 

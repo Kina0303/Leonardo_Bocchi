@@ -7,14 +7,15 @@
 void CharaBase::Initialize(Vector2D _location, Vector2D _box_size)
 {
 	__super::Initialize(_location, _box_size);
+    on_ground = false;
 }
 
 void CharaBase::Update()
 {
-	on_ground = false;
+    on_ground = false;
+
 	//ã§í ÇÃèdóÕìKóp
 	ApplyGravity();
-
 
 }
 
@@ -57,11 +58,11 @@ void CharaBase::OnHitCollision(GameObject* hit_object)
 
         if (depth_y < depth_x) {
             if (diff.y < 0) {
+                on_ground = true;
                 location.y -= depth_y;
                 velocity.y = 0.0f;
                 g_velocity = 0.0f;
                 jump_count = 0;
-                on_ground = true;
             }
             else {
                 location.y += depth_y;

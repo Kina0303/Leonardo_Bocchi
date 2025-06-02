@@ -18,6 +18,7 @@ protected:
 	float max_fall_speed = 0.0f;     //最大落下速度
 	bool on_ground = false;           //地面にいるかどうか
 
+
 	int jump_count = 0;
 
 	bool damage_flg = false;	//ダメージを受けたかどうか
@@ -41,5 +42,7 @@ public:
 
 	//重力適用
 	virtual void ApplyGravity(); 
+
+	void SetOnGround(bool flg) { on_ground = flg; }
 };
 
