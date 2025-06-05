@@ -109,6 +109,8 @@ private:
 	void CreateImagesResource(std::string file_name, int all_num, int num_x, int num_y, int size_x, int size_y);
 
 
+	void CreateImagesResourceSingle(std::string file_name, int all_num);
+
 	/// <summary>
 	/// ‰¹Œ¹“Ç‚İ‚İƒŠƒ\[ƒX‚ğì¬‚·‚é
 	/// </summary>

@@ -48,9 +48,10 @@ const std::vector<int>& ResourceManager::GetImages(std::string file_name, int al
 	//コンテナ内に指定ファイルがなければ、生成する
 	if (images_container.count(file_name) == NULL)
 	{
-		if (all_num == 1)
+		if (num_x == 0 || num_y == 0)//if (all_num == 1)
 		{
-			CreateImagesResource(file_name);
+			//CreateImagesResource(file_name);
+			CreateImagesResourceSingle(file_name, all_num);
 		}
 		else
 		{
@@ -152,6 +153,27 @@ void ResourceManager::CreateImagesResource(std::string file_name, int all_num, i
 
 	//動的メモリ開放
 	delete[] handle;
+}
+
+void ResourceManager::CreateImagesResourceSingle(std::string file_name, int all_num)
+{
+	std::vector<int> handles;
+
+	for (int i = 1; i <= all_num; ++i)
+	{
+		char buf[256];
+		sprintf_s(buf, sizeof(buf), "%s%d.png", file_name.c_str(), i);
+
+
+		int handle = LoadGraph(buf);
+		if (handle == -1)
+		{
+			throw(std::string(buf) + " がありません\n");
+		}
+		handles.push_back(handle);
+	}
+
+	images_container[file_name] = handles;
 }
 
 void ResourceManager::CreateSoundResource(std::string file_name)

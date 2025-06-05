@@ -2,13 +2,14 @@
 #include "../CharaBase.h"
 #include <vector>
 #include "../../../Utility/InputControl.h"
+#include <map>
 
 
 class Player :
     public CharaBase
 {
 private:
-    std::vector<int> animation_data;//アニメーションデータ
+    //std::vector<int> animation_data;//アニメーションデータ
 
 	std::vector<MoveRecord> move_history; //移動履歴
 
@@ -27,6 +28,12 @@ private:
 
     bool is_invincible;
     int invincible_timer;
+
+
+    std::map<ActionState,std::vector<int>> animation_data;
+	std::map<ActionState, int> animation_frame_count;
+	int animation_frame = 0; //現在のアニメーションフレーム
+
 
 public:
     Player();
@@ -64,5 +71,7 @@ public:
 
     void ApplyDamage();
 
+
+    void LoadPlayerImage();
 };
 

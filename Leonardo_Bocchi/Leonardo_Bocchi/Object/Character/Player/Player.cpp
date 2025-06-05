@@ -25,21 +25,21 @@ void Player::Initialize(Vector2D _location, Vector2D _box_size)
 
 	//image = LoadGraph("Resource/Images/Character/Player/player.png");
 
-	//image = animation_data[0];
-	//image = NULL;
-	ResourceManager* rm = ResourceManager::GetInstance();
+	//ResourceManager* rm = ResourceManager::GetInstance();
 
 	//IDLEèÛë‘
-	animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/Player.png")[0]);
+	//animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/Player.png")[0]);
 
 	//MOVEèÛë‘
-	animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/PlayerMove01.png")[0]);
-	animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/PlayerMove02.png")[0]);
+	//animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/PlayerMove01.png")[0]);
+	//animation_data.push_back(rm->GetImages("Resource/Images/Character/Player/PlayerMove02.png")[0]);
 
-	image = animation_data[0];
-
+	//image = animation_data[0];
+	animation_frame = 0;
 	animation_count = 0;
 	jump_count = 1;
+
+	LoadPlayerImage();
 }
 
 void Player::Update()
@@ -206,39 +206,26 @@ void Player::HandleInput()
 	// É_ÉÅÅ[ÉWíÜÇÕèÛë‘ëJà⁄ÇµÇ»Ç¢
 	if (action_state != ActionState::DAMAGE)
 		action_state = next_state;
+
+	if (action_state != next_state)
+	{
+		animation_frame = 0;
+	}
+
 }
 
 
 
 void Player::AnimationControl()
 {
-	static int frame = 0;
-	frame++;
 
-	switch (action_state)
-	{
-	case Player::ActionState::IDLE:
-		image = animation_data[0];
-		break;
+	animation_frame++;
 
-	case Player::ActionState::WALK:
-		if (frame % 20 < 10)
-			image = animation_data[1];
-		else
-			image = animation_data[2];
-		break;
+	const auto& frames = animation_data[action_state];
+	if (frames.empty()) return;
 
-	case Player::ActionState::JUMP:
-		image = animation_data[1]; 
-		break;
-
-	case Player::ActionState::DAMAGE:
-		image = animation_data[0]; 
-		break;
-
-	default:
-		break;
-	}
+	int index = (animation_frame / 10) % frames.size();
+	image = frames[index];
 }
 
 
@@ -289,4 +276,27 @@ void Player::ApplyDamage()
 	damage_flg = true;
 	hp--;
 
+}
+
+void Player::LoadPlayerImage()
+{
+	ResourceManager* rm = ResourceManager::GetInstance();
+
+	// IDLE
+	auto idle_imgs = rm->GetImages("Resource/Images/Character/Player/Player-idle/player-idle", 6);
+	animation_data[ActionState::IDLE] = idle_imgs;
+
+	// WALK
+	auto walk_imgs = rm->GetImages("Resource/Images/Character/Player/Player-walk/player-run", 6);
+	animation_data[ActionState::WALK] = walk_imgs;
+
+	// JUMP
+	auto jump_imgs = rm->GetImages("Resource/Images/Character/Player/Player-jump/player-jump", 2);
+	animation_data[ActionState::JUMP] = jump_imgs;
+
+	// DAMAGE
+	auto dmg_imgs = rm->GetImages("Resource/Images/Character/Player/Player-damage/player-damage", 1);
+	animation_data[ActionState::DAMAGE] = dmg_imgs;
+
+	image = animation_data[ActionState::IDLE][0];
 }
